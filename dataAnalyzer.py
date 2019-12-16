@@ -150,6 +150,7 @@ class dataAnalyzer:
         data=self.__removeDuplicate(data)
         tmpDF=pd.DataFrame(data)
         tmpDF=self.__convertTimeStamp(tmpDF)
+        tmpDF=self.__removeMacRedundancies(tmpDF)
         #tmpDF['date']=pd.to_datetime(tmpDF['date'])
         self.dataFrame=self.dataFrame.append(tmpDF)
         self.dataFrame.drop_duplicates()
@@ -166,7 +167,7 @@ class dataAnalyzer:
     def getInRange(self,start,end):
         mask=(self.dataFrame['date']>=start) & (self.dataFrame['date']<=end)
         newDf=self.dataFrame.loc[mask]
-        newDf=self.__removeMacRedundancies(newDf)
+        #newDf=self.__removeMacRedundancies(newDf)
         return self.__child(newDf)
     
     @staticmethod
