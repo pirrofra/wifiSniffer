@@ -9,6 +9,7 @@ class dataAnalyzer:
     dataFrame = None
     rooms=None
     macPrefixes=None
+    contiguousRooms=None
     resampleRule="15Min"
     nightTimeStart=20
     nightTimeEnd=8
@@ -63,6 +64,8 @@ class dataAnalyzer:
         newDataAnalyzer.rooms=self.rooms
         newDataAnalyzer.resampleRule=self.resampleRule
         newDataAnalyzer.dataFrame=newDf
+        newDataAnalyzer.nightTimeEnd=self.nightTimeEnd
+        newDataAnalyzer.nightTimeStart=self.nightTimeStart
         return newDataAnalyzer
 
     def __filterMac(self,data):
@@ -97,29 +100,33 @@ class dataAnalyzer:
 
     def __removeMacRedundancies(self,data):
         newDataFrame=pd.DataFrame()
-        conroms=["[SNS] Aula Stemmi","[SNS] Aula Azzurra","[SNS] Aula Bianchi"]
-        mask=(data['room'].isin(conroms))
-        dataframe=data.loc[mask]
-        df_supp = dataframe.copy()
-        for i in dataframe.index:
-            mac = dataframe['mac2'][i]
-            if mac not in df_supp['mac2'].values: 
-                continue
-            else:
-                room = None
-                df_supp = df_supp[df_supp.mac2 != mac]
-                rows = dataframe.loc[dataframe['mac2'] == mac]
-                rssi = rows.rssi.max()
-                if rows.room.nunique() != 1:
-                    rooms = rows.loc[rows['rssi'] == rssi]
-                    room = rooms.room.values[0]
-                    rows=rows.loc[rows["room"]==room]
-                newDataFrame=newDataFrame.append(rows)
+        for roomList in self.contiguousRooms:
+            mask=(data['room'].isin(roomList))
+            dataframe=data.loc[mask]
+            df_supp = dataframe.copy()
+            for i in dataframe.index:
+                mac = dataframe['mac2'][i]
+                if mac not in df_supp['mac2'].values: 
+                    continue
+                else:
+                    room = None
+                    df_supp = df_supp[df_supp.mac2 != mac]
+                    rows = dataframe.loc[dataframe['mac2'] == mac]
+                    rssi = rows.rssi.max()
+                    if rows.room.nunique() != 1:
+                        rooms = rows.loc[rows['rssi'] == rssi]
+                        room = rooms.room.values[0]
+                        rows=rows.loc[rows["room"]==room]
+                    newDataFrame=newDataFrame.append(rows)
         return newDataFrame
         
 
     def addRooms(self,path):
-        self.rooms=self.__parseJson(path)
+        jsonFile=self.__parseJson(path)
+        self.rooms=jsonFile["rooms"]
+        self.contiguousRooms=jsonFile["contiguousRooms"]
+        print(self.rooms)
+        print(self.contiguousRooms)
 
     def addMacPrefixes(self,path):
         self.macPrefixes=self.__parseJson(path)
@@ -151,7 +158,7 @@ class dataAnalyzer:
     def getInRange(self,start,end):
         mask=(self.dataFrame['date']>=start) & (self.dataFrame['date']<=end)
         newDf=self.dataFrame.loc[mask]
-        #newDf=self.__removeMacRedundancies(newDf)
+        newDf=self.__removeMacRedundancies(newDf)
         return self.__child(newDf)
 
     def getTimeSeries(self):
