@@ -5,7 +5,7 @@ from json import loads
 
 
 app=flask.Flask("DataManager")
-dbService=pymongo.MongoClient("localhost",27017)
+dbService=pymongo.MongoClient("database",27017)
 db=dbService["wifiSniffer"]
 
 
@@ -91,4 +91,4 @@ def singleDevice(name):
     return result
 
 
-app.run()
+#app.run()
