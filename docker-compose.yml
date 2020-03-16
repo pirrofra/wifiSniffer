@@ -1,0 +1,36 @@
+version: "3.7"
+
+services: 
+    dataManager:
+        build: ./src/dataManager/
+        ports:
+            - "1000"
+
+    database:
+        image: mongo:4.2.2
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: password
+          ports:
+            - "27017"
+          volumes:
+            - mongodb:/data/wifiSniffer/
+
+    dashboard:
+        build: ./src/dashboard/
+        ports:
+            -"80:80"
+
+    dataAnalysis:
+        build: ./src/dataAnalysis
+        ports:
+            -"1001:1001"
+    
+    dataCollector:
+        build: ./src/dataCollector
+            
+
+
+volumes:
+    mongodb:
+
