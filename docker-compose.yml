@@ -28,6 +28,8 @@ services:
     
     dataCollector:
         build: ./src/dataCollector
+        ports:
+            -"1002:1002"
             
 
 

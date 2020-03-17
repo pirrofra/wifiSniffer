@@ -1,22 +1,42 @@
 import flask
 import pymongo
 from bson.json_util import dumps
-from json import loads
 
 
 app=flask.Flask("DataManager")
 dbService=pymongo.MongoClient("database",27017)
 db=dbService["wifiSniffer"]
 
+class InvalidUsage(Exception):
+    status_code = 400
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
+@app.errorhandler(InvalidUsage)
+def handle_invalid_usage(error):
+    response = flask.jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
+
+
 
 def createResponse(status,data):
-    return {
-        "status":status,
-        "data":data
-    }
+    if(status==0):
+        return dumps(data)
+    else:
+        raise InvalidUsage(data, status_code=400)
 
 def getSniffedData(scanner,start,end):
-    result=createResponse(-1,"Generic Error")
     if(scanner==None or start==None or end==None):
         result=createResponse(-1,"MissingParameterForSearch")
     else:
@@ -28,12 +48,10 @@ def getSniffedData(scanner,start,end):
             }
         }
         data=db.sniffedData.find(query,{"_id":0})
-        data=dumps(data)
-        result=createResponse(0,loads(data))
+        result=createResponse(0,data)
     return result
 
 def postSniffedData(data):
-    result=createResponse(-1,"Generic Error")
     if(type (data) is not list):
         result=createResponse(-1,"Data is not a Json List")
     else:
@@ -44,8 +62,7 @@ def postSniffedData(data):
 def getSingleDevice(name):
     query={"name": name}
     data=db.devices.find(query,{"_id":0})
-    data=dumps(data)
-    return createResponse(0,loads(data))
+    return createResponse(0,data)
 
 
 def postSingleDevice(name,mac):
@@ -55,7 +72,6 @@ def postSingleDevice(name,mac):
 
 @app.route('/sniffedData',methods=['POST', 'GET'])
 def sniffedData():
-    result=createResponse(-1,"Generic Error")
     if(flask.request.is_json==False):
         result=createResponse(-1,"Data is not a Json File")
     else:
@@ -73,12 +89,10 @@ def sniffedData():
 @app.route('/device',methods=['GET'])
 def getAllDevices():
     data=db.devices.find({},{"_id":0})
-    data=dumps(data)
-    return createResponse(0,loads(data))
+    return createResponse(0,data)
 
 @app.route('/device/<name>',methods=['GET','POST'])
 def singleDevice(name):
-    result=createResponse(-1,"Generic Error")
     if flask.request.method== "GET":
         result=getSingleDevice(name)
     elif flask.request.method=="POST":
