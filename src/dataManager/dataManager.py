@@ -40,7 +40,7 @@ def getCleanData(scanner,start,end):
     else:
         query={
             "scanner_id": { "$in": scanner },
-            "time":{
+            "timestamp":{
                 "$gte":start,
                 "$lt":end
             }
