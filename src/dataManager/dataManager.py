@@ -28,15 +28,13 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
-
-
 def createResponse(status,data):
     if(status==0):
         return dumps(data)
     else:
         raise InvalidUsage(data, status_code=400)
 
-def getSniffedData(scanner,start,end):
+def getCleanData(scanner,start,end):
     if(scanner==None or start==None or end==None):
         result=createResponse(-1,"MissingParameterForSearch")
     else:
@@ -47,15 +45,15 @@ def getSniffedData(scanner,start,end):
                 "$lt":end
             }
         }
-        data=db.sniffedData.find(query,{"_id":0})
+        data=db.cleanData.find(query,{"_id":0})
         result=createResponse(0,data)
     return result
 
-def postSniffedData(data):
+def postCleanData(data):
     if(type (data) is not list):
         result=createResponse(-1,"Data is not a Json List")
     else:
-        db.sniffedData.insert_many(data)
+        db.cleanData.insert_many(data)
         result=createResponse(0,"Success")
     return result
 
@@ -70,8 +68,8 @@ def postSingleDevice(name,mac):
     db.devices.insert_one(obj)
     return createResponse(0,"Success")
 
-@app.route('/sniffedData',methods=['POST', 'GET'])
-def sniffedData():
+@app.route('/cleanData',methods=['POST', 'GET'])
+def cleanData():
     if(flask.request.is_json==False):
         result=createResponse(-1,"Data is not a Json File")
     else:
@@ -80,10 +78,10 @@ def sniffedData():
             scanner=data["scanner"]
             start=data["start"]
             end=data["end"]
-            result=getSniffedData(scanner,start,end)
+            result=getCleanData(scanner,start,end)
         elif flask.request.method=="POST":
             data=flask.request.get_json()
-            result=postSniffedData(data)
+            result=postCleanData(data)
     return result
 
 @app.route('/device',methods=['GET'])
@@ -103,6 +101,3 @@ def singleDevice(name):
             mac=data["mac"]
             result=postSingleDevice(name,mac)
     return result
-
-
-#app.run()
