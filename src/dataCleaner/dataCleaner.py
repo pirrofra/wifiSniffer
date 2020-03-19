@@ -22,10 +22,10 @@ def cleaning():
     deleteRedundacies()
     db.cleaned.rename("cleaning")
     removeOutliner()
-    print("removed Outliner")
     data=db.cleaned.find({},{"_id":0})
     data=list(data)
     send(data)
+    db.cleaned.drop()
 
 def deleteRedundacies():
     pipeline=[
@@ -41,8 +41,9 @@ def deleteRedundacies():
             "_id":0,
             "mac":"$_id.mac2",
             "scanner_id":"$_id.scanner_id",
+            "room":"$_id.scanner_id",
             "timestamp":"$_id.timestamp",
-            "rssi":"$rssi"
+            "rssi":"$rssi"            
         }},
         {"$sort":SON([("timestamp",1),("scanner_id",1)])},
         {"$out":"cleaned"}
@@ -50,8 +51,7 @@ def deleteRedundacies():
     db.cleaning.aggregate(pipeline,allowDiskUse=True)
     db.cleaning.drop()
 
-
-def removeOutliner():
+def getMinMax():
     pipeline=[
         {"$group":{
             "_id":None,
@@ -62,12 +62,17 @@ def removeOutliner():
     MinMax=list(db.cleaning.aggregate(pipeline,allowDiskUse=True))
     min=MinMax[0]["min"]
     max=MinMax[0]["max"]
+    return min,max
+
+
+def removeOutliner():
+    min,max=getMinMax()
     time=min
     while(time<=max):
-        removeOutlinerInterval(time,time+150)
+        removeOutlinerInterval(time,time+120)
         perc= ((time-min)*100)/(max-min)
-        print("Completato al"+str(perc)+"%...")
-        time+=150
+        print("OUTLINER: "+str(perc)+"%...")
+        time+=120
 
 def removeOutlinerInterval(start,end):
     dic=getAvgStdDev(start,end)
@@ -80,7 +85,7 @@ def removeOutlinerInterval(start,end):
         for rssi in element["rssi"]:
             if(stddev!=0):
                 d=(rssi-avg)/stddev
-                if(d<=2 and d>=-2):
+                if(d<=2 and d>=-2 and rssi>=-90):
                     newRSSI.append(rssi)
         if(len(newRSSI)!=0):
             element["rssi"]=newRSSI
@@ -127,11 +132,10 @@ def send(data):
 def main():
     while(True):
         while(db.rawData.count()==0):
-            sleep(150)
+            sleep(120)
         cleaning()
-        sleep(150)
+        sleep(120)
 
-#main()
-    
+main()
 
     
