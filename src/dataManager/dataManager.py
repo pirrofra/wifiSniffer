@@ -4,7 +4,10 @@ from bson.json_util import dumps
 
 
 app=flask.Flask("DataManager")
-dbService=pymongo.MongoClient("database",27017)
+
+#dbService=pymongo.MongoClient("database",27017)
+dbService=pymongo.MongoClient("localhost",27017)
+
 db=dbService["wifiSniffer"]
 
 class InvalidUsage(Exception):
@@ -51,6 +54,7 @@ def getCleanData(scanner,start,end):
 
 def postCleanData(data):
     if(type (data) is not list):
+        print(type(data))
         result=createResponse(-1,"Data is not a Json List")
     else:
         db.cleanData.insert_many(data)
@@ -101,3 +105,4 @@ def singleDevice(name):
             mac=data["mac"]
             result=postSingleDevice(name,mac)
     return result
+

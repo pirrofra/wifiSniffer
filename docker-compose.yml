@@ -15,6 +15,16 @@ services:
             - "27017"
           volumes:
             - mongodb:/data/wifiSniffer/
+    
+    tmpDatabase:
+        image: mongo:4.2.2
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: password
+            ports:
+            - "27017"
+            volumes:
+            - mongodb:/data/wifiSniffer/
 
     dashboard:
         build: ./src/dashboard/
@@ -33,18 +43,7 @@ services:
 
     dataCleaner:
         build: ./src/dataCleaner
-        ports:
-            -"1003"
     
-    tmpDatabase:
-        image: mongo:4.2.2
-        environment:
-            MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: password
-            ports:
-            - "27017"
-            volumes:
-            - mongodb:/data/wifiSniffer/
             
 
 

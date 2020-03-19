@@ -3,4 +3,4 @@ COPY . /wifiSniffer/dataManager
 WORKDIR /wifiSniffer/dataManager
 RUN pip install -r requirements.txt
 ENV FLASK_APP dataManager.py
-CMD [ "flask","run","--host 0.0.0.0","--port 1000" ]
+CMD [ "gunicorn","-b 1000","dataManager:app" ]
