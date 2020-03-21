@@ -1,1 +1,3 @@
 wifiSniffer, ognuno ha il suo docker
+
+mongoexport --db wifiSniffer --collection cleanData | sed '/"_id":/s/"_id":[^,]*,//' > data.json

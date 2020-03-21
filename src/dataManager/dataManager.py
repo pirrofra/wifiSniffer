@@ -3,10 +3,10 @@ import pymongo
 from bson.json_util import dumps
 
 
-app=flask.Flask("DataManager")
+app=flask.Flask("dataManager")
 
-#dbService=pymongo.MongoClient("database",27017)
-dbService=pymongo.MongoClient("localhost",27017)
+dbService=pymongo.MongoClient("database",27017)
+#dbService=pymongo.MongoClient("localhost",27017)
 
 db=dbService["wifiSniffer"]
 

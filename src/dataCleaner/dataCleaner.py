@@ -6,6 +6,8 @@ from math import sqrt
 import requests
 
 
+#TODO: Pipeline per l'analisi
+
 #1545154 unique records
 #906752 after delete Redundancies
 #860033 after outliner remove (300s)
@@ -26,6 +28,7 @@ def cleaning():
     removeOutliner()
     db.cleaned.rename("cleaning")
     highestRSSI()
+    print("finito")
     #data=db.cleaned.find({},{"_id":0})
     #data=list(data)
     #send(data)
@@ -74,8 +77,6 @@ def removeOutliner():
     time=min
     while(time<=max):
         removeOutlinerInterval(time,time+300)
-        perc= ((time-min)*100)/(max-min)
-        print("OUTLINER: "+str(perc)+"%...")
         time+=300
     db.cleaning.drop()
 
@@ -130,8 +131,6 @@ def highestRSSI():
     time=min
     while(time<=max):
         highestRSSIInterval(time,time+60)
-        perc= ((time-min)*100)/(max-min)
-        print("HIGHEST RSSI: "+str(perc)+"%...")
         time+=60
 
 def highestRSSIInterval(start,end):
