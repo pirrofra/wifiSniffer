@@ -24,8 +24,8 @@ db=dbService["wifiSniffer"]
 def cleaning():
     db.rawData.rename("cleaning")
     deleteRedundacies()
-    db.cleaned.rename("cleaning")
-    removeOutliner()
+    #db.cleaned.rename("cleaning")
+    #removeOutliner()
     db.cleaned.rename("cleaning")
     highestRSSI()
     print("finito")

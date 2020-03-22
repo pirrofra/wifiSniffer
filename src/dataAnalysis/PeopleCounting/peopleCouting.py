@@ -1,5 +1,5 @@
 import requests
-
+import json
 
 
 class statistics:
@@ -27,11 +27,11 @@ class statistics:
                     if(state==0):
                         del self.macStates[mac]
                     else:
-                        self.macStates[mac]=state,slot
+                        self.macStates[mac]=state,delta
                         self.timelineAppend(mac,delta)
         
-        self.arrivalConfirmation(time,tobeConfirmed)
-        del self.timeline[time]
+            self.arrivalConfirmation(time,tobeConfirmed)
+            del self.timeline[time]
 
     def arrivalConfirmation(self,time,tobeConfirmed):
         for mac in tobeConfirmed:
@@ -41,26 +41,23 @@ class statistics:
                 self.macStates[mac]=(2,delta)
                 self.timelineAppend(mac,delta)
                 self.timeline[oldTime].remove(mac)
+                self.countedPeople=self.countedPeople+1
 
     def addToCount(self,time,spottedMac):
-        self.currentTime+=60
         while(self.currentTime<=time):
             self.timeout(self.currentTime)
-            self.currentTime+=60
+            self.currentTime=self.currentTime+60
 
         for mac in spottedMac:
             if(self.macStates.get(mac)==None):
                 state,slot=self.firstArrival(mac)
+                arrivaldelta=((self.at+1)*60)+time
+                self.timelineAppend(mac,arrivaldelta)
+                self.ArrivalTimeout[mac]=arrivaldelta
             else:
                 oldState,timeout=self.macStates[mac]
                 state,slot=self.spottedRequest(mac)
-                self.timeline[timeout].remove(mac)
-                if(state==2 and oldState==1):
-                    self.countedPeople+=1
-                elif(state==1):
-                    arrivaldelta=((self.at+1)*60+time)
-                    self.timelineAppend(mac,arrivaldelta)
-                    self.ArrivalTimeout[mac]=arrivaldelta
+                (self.timeline[timeout]).remove(mac)                    
             delta=((slot+1)*60)+self.currentTime
             self.timelineAppend(mac,delta)
             self.macStates[mac]=state,delta
@@ -72,11 +69,12 @@ class statistics:
 
 
     def timeoutOccured(self,mac):
-        (state,)=self.macStates[mac]
+        (state,tmp)=self.macStates[mac]
         if(state==1):
-            time=self.ArrivalTimeout[mac]
-            del self.ArrivalTimeout[mac]
-            self.timeline[time].remove(mac)
+            if(self.ArrivalTimeout.get(mac)!=None):
+                time=self.ArrivalTimeout[mac]
+                del self.ArrivalTimeout[mac]
+                self.timeline[time].remove(mac)
             state=0
             slot=0
         elif(state==2):
@@ -85,10 +83,11 @@ class statistics:
         elif(state==3):
             state=0
             slot=0
+            self.countedPeople=self.countedPeople-1
         return state,slot
 
     def spottedRequest(self,mac):
-        (state,)=self.macStates[mac]
+        (state,tmp)=self.macStates[mac]
         if(state==1):
             state=1
             slot=self.wt
@@ -106,7 +105,12 @@ class statistics:
 def count(data,stats):
     result=[]
     data=groupbyMinute(data,stats)
+    first=True
+    
     for time in sorted(data.keys()):
+        if(first):
+            first=False
+            stats.currentTime=time
         stats.addToCount(time,data[time])
         result.append({
             "timestamp":time,
@@ -118,10 +122,22 @@ def count(data,stats):
 def groupbyMinute(data,stat):
     result={}
     for element in data:
-        newTimeStamp=(data["timestamp"]//60)*60
+        newTimeStamp=(element["timestamp"]//60)*60
         mac=element["mac"]
         if(result.get(newTimeStamp)==None):
             result[newTimeStamp]=[]
         result[newTimeStamp].append(mac)
     return result
 
+
+def parseJsonl(path):
+        with open(path) as file:
+            return [json.loads(line) for line in file]
+        raise ValueError("error parsing jsonl file")
+
+data=parseJsonl("/home/pirrofra/single.json")
+stats=statistics(5,2,5)
+
+res=count(data,stats)
+for el in res:
+    print(json.dumps(el))
