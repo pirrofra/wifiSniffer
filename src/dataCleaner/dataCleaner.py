@@ -72,13 +72,9 @@ def getMinMax():
 
 
 def removeOutliner():
-    removeLowRSSI(-90)
+    removeLowRSSI(-91)
     min,max=getMinMax()
-    time=min
-    while(time<=max):
-        removeOutlinerInterval(time,time+300)
-        time+=300
-    db.cleaning.drop()
+    removeOutlinerInterval(min,max+1)
 
 def removeOutlinerInterval(start,end):
     dic=getAvgStdDev(start,end)
@@ -128,7 +124,11 @@ def removeLowRSSI(low):
 
 def highestRSSI():
     min,max=getMinMax()
-    highestRSSIInterval(min,max+1)
+    time=min
+    while(time<=max):
+        highestRSSIInterval(time,time+300)
+        time+=300
+    db.cleaning.drop()
 
 def highestRSSIInterval(start,end):
     pipeline=[
