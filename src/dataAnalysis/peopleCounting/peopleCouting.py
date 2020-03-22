@@ -1,5 +1,3 @@
-import requests
-import json
 
 
 class statistics:
@@ -128,16 +126,3 @@ def groupbyMinute(data,stat):
             result[newTimeStamp]=[]
         result[newTimeStamp].append(mac)
     return result
-
-
-def parseJsonl(path):
-        with open(path) as file:
-            return [json.loads(line) for line in file]
-        raise ValueError("error parsing jsonl file")
-
-data=parseJsonl("/home/pirrofra/single.json")
-stats=statistics(5,2,5)
-
-res=count(data,stats)
-for el in res:
-    print(json.dumps(el))

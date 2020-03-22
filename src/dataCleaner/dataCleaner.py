@@ -24,15 +24,15 @@ db=dbService["wifiSniffer"]
 def cleaning():
     db.rawData.rename("cleaning")
     deleteRedundacies()
-    #db.cleaned.rename("cleaning")
-    #removeOutliner()
+    db.cleaned.rename("cleaning")
+    removeOutliner()
     db.cleaned.rename("cleaning")
     highestRSSI()
     print("finito")
-    #data=db.cleaned.find({},{"_id":0})
-    #data=list(data)
-    #send(data)
-    #db.cleaned.drop()
+    data=db.cleaned.find({},{"_id":0})
+    data=list(data)
+    send(data)
+    db.cleaned.drop()
 
 def deleteRedundacies():
     pipeline=[
@@ -128,10 +128,7 @@ def removeLowRSSI(low):
 
 def highestRSSI():
     min,max=getMinMax()
-    time=min
-    while(time<=max):
-        highestRSSIInterval(time,time+60)
-        time+=60
+    highestRSSIInterval(min,max+1)
 
 def highestRSSIInterval(start,end):
     pipeline=[
