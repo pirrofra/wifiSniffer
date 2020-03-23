@@ -1,12 +1,14 @@
 import flask
 import pymongo
 from bson.json_util import dumps
+from bson.son import SON
+
 
 
 app=flask.Flask("dataManager")
 
-dbService=pymongo.MongoClient("database",27017)
-#dbService=pymongo.MongoClient("localhost",27017)
+#dbService=pymongo.MongoClient("database",27017)
+dbService=pymongo.MongoClient("localhost",27017)
 
 db=dbService["wifiSniffer"]
 
@@ -77,21 +79,22 @@ def findWorkplace(scanner,start,end):
         result=createResponse(-1,"MissingParameterForSearch")
     else:
         pipeline=[
-            {"$match":{"timestamp":{"$gte":start,"$lt":end},"room": { "$in": scanner }},
+            {"$match":{"timestamp":{"$gte":start,"$lt":end},"room": { "$in": scanner }}},
             {"$group":{
                 "_id":{
                     "mac":"$mac",
                     "room":"$room"},
                 "count":{"$sum":1}}},
-            {"$sort":SON([("$_id.mac",1),("count",-1)])},
+            {"$sort":SON([("_id.mac",1),("count",-1)])},
             {"$group":{
                 "_id":"$_id.mac",
                 "room":{"$first":"$_id.room"},
                 "count":{"$first":"$count"}}},
             {"$project":{
-                "mac":"$_id.mac",
+                "_id":0,
+                "mac":"$_id",
                 "room":"$room"}}]
-        result= createResponse(0,db.cleanData.aggregate(pipeline))
+        result= createResponse(0,db.cleanData.aggregate(pipeline,allowDiskUse=True))
     return result
 
 @app.route('/cleanData',methods=['POST', 'GET'])
@@ -128,7 +131,7 @@ def singleDevice(name):
             result=postSingleDevice(name,mac)
     return result
 
-@app.route("/cleanData/workplace",methods='GET')
+@app.route("/cleanData/workplace",methods=['GET'])
 def workplace():
     if(flask.request.is_json==False):
         result=createResponse(-1,"Data is not a Json File")

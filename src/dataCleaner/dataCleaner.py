@@ -1,6 +1,5 @@
 import pymongo
 from bson.json_util import dumps
-from bson.son import SON
 from time import sleep
 from math import sqrt
 import requests
@@ -75,6 +74,7 @@ def removeOutliner():
     removeLowRSSI(-91)
     min,max=getMinMax()
     removeOutlinerInterval(min,max+1)
+    db.cleaning.drop()
 
 def removeOutlinerInterval(start,end):
     dic=getAvgStdDev(start,end)
@@ -118,7 +118,7 @@ def getAvgStdDev(start,end):
     return dic
 
 def removeLowRSSI(low):
-    query={"rssi":{"$lt":low}}
+    query={"rssi":{"$lte":low}}
     db.cleaning.delete_many(query)
 
 
