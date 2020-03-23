@@ -5,7 +5,7 @@ from json import dumps
 from relationshipGraph import relationshipGraph
 import Location
 
-dataManager="http://data_manager:1000/cleanData"
+dataManager="http://data_manager:5000/cleanData"
 #dataManager="http://127.0.0.1:5000/cleanData/workplace"
 
 app=flask.Flask("dataAnalysis")

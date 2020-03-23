@@ -5,14 +5,14 @@ services:
         container_name: data_manager
         build: ./src/dataManager/
         ports:
-            - 1000
+            - 5000
 
     database:
         container_name: database
         image: mongo:4.2.2
-        environment:
-            MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: password
+        #environment:
+        #    MONGO_INITDB_ROOT_USERNAME: root
+        #    MONGO_INITDB_ROOT_PASSWORD: password
         ports:
             - 27017
         volumes:
@@ -21,9 +21,9 @@ services:
     tmp_database:
         container_name: tmp_database
         image: mongo:4.2.2
-        environment:
-            MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: password
+        #environment:
+        #    MONGO_INITDB_ROOT_USERNAME: root
+        #    MONGO_INITDB_ROOT_PASSWORD: password
         ports:
             - 27017
         volumes:
@@ -39,13 +39,13 @@ services:
         container_name: data_analysis
         build: ./src/dataAnalysis
         ports:
-            - "1001:1001"
+            - "5001:5001"
     
     data_collector:
         container_name: data_collector
         build: ./src/dataCollector
         ports:
-            - "1002:1002"
+            - "5002:5002"
 
     data_cleaner:
         container_name: data_cleaner

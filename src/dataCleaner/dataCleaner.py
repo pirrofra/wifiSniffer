@@ -12,11 +12,11 @@ import requests
 #860033 after outliner remove (300s)
 #862597 after outliner remove(1h)
 
-deviceManager="http://data_manager:1000/cleanData"
+deviceManager="http://data_manager:5000/cleanData"
 #deviceManager="http://127.0.0.1:5000/cleanData"
 
-#dbService=pymongo.MongoClient("tmp_database",27017)
-dbService=pymongo.MongoClient("localhost",27017)
+dbService=pymongo.MongoClient("tmp_database",27017)
+#dbService=pymongo.MongoClient("localhost",27017)
 
 db=dbService["wifiSniffer"]
 
