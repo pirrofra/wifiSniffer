@@ -1,1 +1,3 @@
 src/dataCleaner/log
+src/dataCollector/snifferdata.jsonl
+src/prova.json

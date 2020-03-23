@@ -50,7 +50,7 @@ def getCleanData(scanner,start,end):
                 "$lt":end
             }
         }
-        data=db.cleanData.find(query,{"_id":0})
+        data=db.cleanData.find(query,{"_id":0}).sort([("timestamp", pymongo.ASCENDING), ("room", pymongo.DESCENDING)])
         result=createResponse(0,data)
     return result
 

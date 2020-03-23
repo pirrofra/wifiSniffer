@@ -2,4 +2,4 @@ FROM python:alpine3.7
 COPY . /wifiSniffer/dataCollector
 WORKDIR /wifiSniffer/dataCollector
 RUN pip install -r requirements.txt
-CMD
+CMD ["python","dataCollector.py"]

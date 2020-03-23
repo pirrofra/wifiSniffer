@@ -1,5 +1,6 @@
 import pymongo
 from bson.json_util import dumps
+from bson.son import SON
 from time import sleep
 from math import sqrt
 import requests
@@ -11,6 +12,7 @@ import requests
 #906752 after delete Redundancies
 #860033 after outliner remove (300s)
 #862597 after outliner remove(1h)
+#582427 total
 
 deviceManager="http://data_manager:5000/cleanData"
 #deviceManager="http://127.0.0.1:5000/cleanData"
@@ -27,11 +29,11 @@ def cleaning():
     removeOutliner()
     db.cleaned.rename("cleaning")
     highestRSSI()
-    print("finito")
     data=db.cleaned.find({},{"_id":0})
     data=list(data)
     send(data)
     db.cleaned.drop()
+    print("finito")
 
 def deleteRedundacies():
     pipeline=[
@@ -180,6 +182,7 @@ def main():
     while(True):
         while(db.rawData.count()==0):
             sleep(300)
+        print("iniziato")
         cleaning()
         sleep(300)
 

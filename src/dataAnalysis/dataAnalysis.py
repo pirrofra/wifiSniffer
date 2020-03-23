@@ -5,7 +5,7 @@ from json import dumps
 from relationshipGraph import relationshipGraph
 import Location
 
-dataManager="http://data_manager:5000/cleanData"
+dataManager="http://data_manager:5000/"
 #dataManager="http://127.0.0.1:5000/cleanData/workplace"
 
 app=flask.Flask("dataAnalysis")
@@ -54,7 +54,10 @@ def getNames(names):
 def getSingleName(name):
     result=requests.get(dataManager+"/device/"+name)
     data=result.json()
-    return data
+    macs=[]
+    for el in data:
+        macs.append(el["mac"])
+    return macs
 
 def getWorkplace(start,end,scanner,names):
     payload={
@@ -77,7 +80,7 @@ def getGraph(start,end,nameList):
             "end":end,
             "scanner":scanners
         }
-        result=requests.get(dataManager,json=payload)
+        result=requests.get(dataManager+"/cleanData",json=payload)
         data=result.json()
         data=relationshipGraph.renameData(data,names)
         workplace=getWorkplace(start,end,scanners,names)
@@ -85,10 +88,10 @@ def getGraph(start,end,nameList):
     return result
 
 
-def getPeopleCount(start,end,scanner,at,dt,wt):
+def getPeopleCount(start,end,scanner,at,wt,dt):
     if(start==None or end==None or scanner==None or at==None or dt==None or wt==None):
         result=createResponse(-1,"MissingParameter")
-    elif(at>0 or dt>0 or wt>0):
+    elif(at<=0 or dt<=0 or wt<=0):
         result=createResponse(-1,"Invalid Parameters")
     else:
         payload={
@@ -96,7 +99,7 @@ def getPeopleCount(start,end,scanner,at,dt,wt):
             "end":end+1800,
             "scanner":scanner
         }
-        result=requests.get(dataManager,json=payload)
+        result=requests.get(dataManager+"/cleanData",json=payload)
         data=result.json()
         stats=peopleCouting.statistics(at,wt,dt)
         data=peopleCouting.count(data,stats)

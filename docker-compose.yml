@@ -10,20 +10,14 @@ services:
     database:
         container_name: database
         image: mongo:4.2.2
-        #environment:
-        #    MONGO_INITDB_ROOT_USERNAME: root
-        #    MONGO_INITDB_ROOT_PASSWORD: password
         ports:
-            - 27017
+            - "27017:27017"
         volumes:
             - mongodb:/data/wifiSniffer/db
     
     tmp_database:
         container_name: tmp_database
         image: mongo:4.2.2
-        #environment:
-        #    MONGO_INITDB_ROOT_USERNAME: root
-        #    MONGO_INITDB_ROOT_PASSWORD: password
         ports:
             - 27017
         volumes:

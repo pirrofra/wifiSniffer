@@ -1,16 +1,17 @@
 
 
 class statistics:
-    macStates={}
-    countedPeople=0
-    currentTime=0
-    timeline={}
-    ArrivalTimeout={}
+    
 
     def __init__(self,at,wt,dt):
         self.at=at
         self.dt=dt
-        self.wt=wt    
+        self.wt=wt
+        self.macStates={}
+        self.countedPeople=0
+        self.currentTime=0
+        self.timeline={}
+        self.ArrivalTimeout={}    
 
     def timeout(self,time):
         tobeConfirmed=[]
@@ -49,7 +50,7 @@ class statistics:
         for mac in spottedMac:
             if(self.macStates.get(mac)==None):
                 state,slot=self.firstArrival(mac)
-                arrivaldelta=((self.at+1)*60)+time
+                arrivaldelta=((self.at+1)*60)+self.currentTime
                 self.timelineAppend(mac,arrivaldelta)
                 self.ArrivalTimeout[mac]=arrivaldelta
             else:
