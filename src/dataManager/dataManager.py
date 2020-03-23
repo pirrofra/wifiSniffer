@@ -93,7 +93,8 @@ def findWorkplace(scanner,start,end):
             {"$project":{
                 "_id":0,
                 "mac":"$_id",
-                "room":"$room"}}]
+                "room":"$room",
+                "count":"$count"}}]
         result= createResponse(0,db.cleanData.aggregate(pipeline,allowDiskUse=True))
     return result
 
