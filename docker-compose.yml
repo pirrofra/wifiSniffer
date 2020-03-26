@@ -1,4 +1,5 @@
 version: "3"
+#TODO: run mongodb with dbpath
 
 services: 
     data_manager:
@@ -13,7 +14,7 @@ services:
         ports:
             - "27017:27017"
         volumes:
-            - mongodb:/data/wifiSniffer/db
+            - mongodb:/data/db
     
     tmp_database:
         container_name: tmp_database
@@ -21,7 +22,7 @@ services:
         ports:
             - 27017
         volumes:
-            - tmpmongodb:/data/wifiSniffer/tmpdb
+            - tmpmongodb:/data/db
 
     dashboard:
         container_name: dashboard
@@ -44,6 +45,12 @@ services:
     data_cleaner:
         container_name: data_cleaner
         build: ./src/dataCleaner
+    
+    grafana_request:
+        container_name: grafana_request
+        build: ./src/grafanaRequest
+        ports:
+            - "5003:5003"
 
 
 volumes:
