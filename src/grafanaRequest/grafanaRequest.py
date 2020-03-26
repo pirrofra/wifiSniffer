@@ -25,7 +25,8 @@ def search():
     data=response.json()
     list=[]
     for element in data:
-        list.append(element["name"])
+        if(element["name"] not in list):
+            list.append(element["name"])
     return dumps(list)
 
 
