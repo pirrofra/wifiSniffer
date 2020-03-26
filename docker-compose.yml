@@ -1,5 +1,4 @@
 version: "3"
-#TODO: run mongodb with dbpath
 
 services: 
     data_manager:
@@ -24,11 +23,12 @@ services:
         volumes:
             - tmpmongodb:/data/db
 
-    dashboard:
-        container_name: dashboard
-        build: ./src/dashboard/
+    #TODO: set up grafana
+    grafana:
+        image: grafana/grafana:latest
+        container_name: grafana
         ports:
-            - "80:80"
+            - "3000:3000"
 
     data_analysis:
         container_name: data_analysis
@@ -50,7 +50,7 @@ services:
         container_name: grafana_request
         build: ./src/grafanaRequest
         ports:
-            - "5003:5003"
+            - 5003
 
 
 volumes:
