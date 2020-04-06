@@ -143,3 +143,4 @@ def workplace():
         scanner=data["scanner"]
         result=findWorkplace(scanner,start,end)
     return result
+

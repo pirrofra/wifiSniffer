@@ -39,7 +39,7 @@ def createResponse(status,data):
 
 def getScanners(names):
     result=[]
-    for mac in names.keys:
+    for mac in names.keys():
         result.append(mac)
     return result
 
@@ -59,13 +59,13 @@ def getSingleName(name):
         macs.append(el["mac"])
     return macs
 
-def getWorkplace(start,end,scanner,names):
+def getWorkplaces(start,end,scanner,names):
     payload={
             "start":start,
             "end":end,
             "scanner":scanner
         }
-    result=requests.get(dataManager+"/workplace",json=payload)
+    result=requests.get(dataManager+"cleanData/workplace",json=payload)
     data=result.json()
     return relationshipGraph.getWorkplaceDictionary(data,names)
 
@@ -83,8 +83,8 @@ def getGraph(start,end,nameList):
         result=requests.get(dataManager+"/cleanData",json=payload)
         data=result.json()
         data=relationshipGraph.renameData(data,names)
-        workplace=getWorkplace(start,end,scanners,names)
-        result=createResponse(0,relationshipGraph.createGraph(data,workplace))
+        workplaces=getWorkplaces(start,end,scanners,names)
+        result=createResponse(0,relationshipGraph.createGraph(data,workplaces))
     return result
 
 
@@ -135,3 +135,13 @@ def getRelationshipGraph():
             end=parameters["end"]
             result=getGraph(start,end,rooms)
     return result            
+
+@app.route("/api/roomList",methods=['GET'])
+def getRoomList():
+    response=requests.get(dataManager+"device")
+    data=response.json()
+    list=[]
+    for element in data:
+        if(element["name"] not in list):
+            list.append(element["name"])
+    return dumps(list)

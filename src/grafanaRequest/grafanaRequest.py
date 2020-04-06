@@ -5,7 +5,6 @@ from json import dumps
 import pytz
 
 app=flask.Flask("grafanaRequest")
-dataManager="http://data_manager:5000/"
 api="http://data_analysis:5001/api/"
 
 
@@ -21,13 +20,9 @@ def test():
 
 @app.route("/search",methods=["GET","POST"])
 def search():
-    response=requests.get(dataManager+"device")
+    response=requests.get(api+"roomList")
     data=response.json()
-    list=[]
-    for element in data:
-        if(element["name"] not in list):
-            list.append(element["name"])
-    return dumps(list)
+    return dumps(data)
 
 
 @app.route("/query",methods=["GET","POST"])
