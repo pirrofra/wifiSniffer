@@ -1,7 +1,7 @@
 import flask
 import requests
 from peopleCounting import peopleCouting
-from json import dumps
+from flask.json import dumps
 from relationshipGraph import relationshipGraph
 import Location
 
@@ -136,12 +136,25 @@ def getRelationshipGraph():
             result=getGraph(start,end,rooms)
     return result            
 
-@app.route("/api/roomList",methods=['GET'])
-def getRoomList():
+def roomList():
     response=requests.get(dataManager+"device")
     data=response.json()
     list=[]
     for element in data:
         if(element["name"] not in list):
             list.append(element["name"])
+    return list
+
+
+@app.route("/api/roomList",methods=['GET'])
+def getRoomList():
+    list=roomList()
     return dumps(list)
+
+@app.route("/api/relationshipGraph/graph.html")
+def getGraphHTML():
+    start=flask.request.args("from")
+    end=flask.request.args("to")
+    list=getRoomList
+    data=getGraph(start,end,list)
+    return flask.render_template("graph.html",arg=data)
