@@ -1,4 +1,5 @@
 import flask
+from flask_cors import CORS
 import requests
 from peopleCounting import peopleCouting
 from flask.json import dumps
@@ -9,6 +10,7 @@ dataManager="http://data_manager:5000/"
 #dataManager="http://127.0.0.1:5000/cleanData/workplace"
 
 app=flask.Flask("dataAnalysis")
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 class InvalidUsage(Exception):
     status_code = 400
@@ -70,21 +72,18 @@ def getWorkplaces(start,end,scanner,names):
     return relationshipGraph.getWorkplaceDictionary(data,names)
 
 def getGraph(start,end,nameList):
-    if(start==None or end==None or nameList==None):
-        result=createResponse(-1,"MissingParameterForSearch")
-    else:
-        names=getNames(nameList)
-        scanners=getScanners(names)
-        payload={
-            "start":start,
-            "end":end,
-            "scanner":scanners
-        }
-        result=requests.get(dataManager+"/cleanData",json=payload)
-        data=result.json()
-        data=relationshipGraph.renameData(data,names)
-        workplaces=getWorkplaces(start,end,scanners,names)
-        result=createResponse(0,relationshipGraph.createGraph(data,workplaces))
+    names=getNames(nameList)
+    scanners=getScanners(names)
+    payload={
+        "start":start,
+        "end":end,
+        "scanner":scanners
+    }
+    result=requests.get(dataManager+"/cleanData",json=payload)
+    data=result.json()
+    data=relationshipGraph.renameData(data,names)
+    workplaces=getWorkplaces(start,end,scanners,names)
+    result=relationshipGraph.createGraph(data,workplaces)
     return result
 
 
@@ -133,7 +132,10 @@ def getRelationshipGraph():
             rooms=parameters["rooms"]
             start=parameters["start"]
             end=parameters["end"]
-            result=getGraph(start,end,rooms)
+            if(start==None or end==None or rooms==None):
+                result=createResponse(-1,"MissingParameterForSearch")
+            else:
+                result=createResponse(0,getGraph(start,end,rooms))
     return result            
 
 def roomList():
@@ -153,8 +155,8 @@ def getRoomList():
 
 @app.route("/api/relationshipGraph/graph.html")
 def getGraphHTML():
-    start=flask.request.args("from")
-    end=flask.request.args("to")
-    list=getRoomList
+    start=int(flask.request.args.get("from"))//1000
+    end=int(flask.request.args.get("to"))//1000
+    list=roomList()
     data=getGraph(start,end,list)
     return flask.render_template("graph.html",arg=data)

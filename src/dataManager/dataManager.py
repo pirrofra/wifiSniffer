@@ -50,7 +50,14 @@ def getCleanData(scanner,start,end):
                 "$lt":end
             }
         }
-        data=db.cleanData.find(query,{"_id":0}).sort([("timestamp", pymongo.ASCENDING), ("room", pymongo.DESCENDING)])
+        data=db.cleanData.aggregate([
+            {"$match":{
+                "room": { "$in": scanner },
+                "timestamp":{
+                    "$gte":start,
+                    "$lt":end}}},
+            {"$sort":SON([("timestamp",1),("room",-1)])}
+        ],allowDiskUse=True)
         result=createResponse(0,data)
     return result
 
