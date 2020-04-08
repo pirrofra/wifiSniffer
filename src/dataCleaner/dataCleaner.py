@@ -128,8 +128,8 @@ def highestRSSI():
     min,max=getMinMax()
     time=min
     while(time<=max):
-        highestRSSIInterval(time,time+300)
-        time+=300
+        highestRSSIInterval(time,time+60)
+        time+=60
     db.cleaning.drop()
 
 def highestRSSIInterval(start,end):
@@ -181,9 +181,9 @@ def send(data):
 def main():
     while(True):
         while(db.rawData.count()==0):
-            sleep(300)
+            sleep(180)
         print("iniziato")
         cleaning()
-        sleep(300)
+        sleep(180)
 
 main()

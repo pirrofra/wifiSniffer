@@ -2,3 +2,6 @@ src/dataCleaner/log
 src/dataCollector/snifferdata.jsonl
 src/prova.json
 zerynth.md
+firmware/firmware.py
+firmware/main.py
+firmware/main.vbo

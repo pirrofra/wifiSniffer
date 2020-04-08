@@ -23,7 +23,7 @@ import json
 import math
 import rtc
 import sfw
-import zdm
+from zdm import zdm 
 
 sfw.watchdog(0, 120000)
 
@@ -34,8 +34,8 @@ t = timers.timer()                                  # A timer to time the calls 
 
 SSID = ' '
 PASSWORD = ' '
-DEVICEID= ' '
-JWT=' '
+DEVICEID = ' '
+JWT = ' '
 TAG='wifiSniffer'
 
 device=None
@@ -49,9 +49,9 @@ def init():
         # Initialize WiFi chip
         wifi_driver.auto_init()
         #Connect to ZDM
-        device=zdm.ZDMClient(device_id=DEVICEID)
+        device=zdm.Device(DEVICEID)
         device.set_password(JWT)
-        device.connect()
+
     except Exception as e:
         print("Initialization error:", e)
         while True:
@@ -221,11 +221,12 @@ def get_packets(sleep_time, iterations_per_channel, activity_percentage, scan_ti
                     page = 0
                     page_size = 5
                     page_num = math.ceil(len(payloads) / page_size)
+                    device.connect()
                     while page < page_num:
                         print(page + 1, "/", page_num)
                         for j in range(3):
                             try:
-                                device.publish_data(TAG, payloads[page*page_size:(page+1)*page_size])
+                                device.publish({"data":payloads[page*page_size:(page+1)*page_size]},TAG)
                                 break
                             except Exception as e:
                                 print("Can't post data",e)
@@ -234,8 +235,8 @@ def get_packets(sleep_time, iterations_per_channel, activity_percentage, scan_ti
                             mcu.reset()
                         page = page + 1
                         sfw.kick()
-
-                    wifi.unlink()
+                    sleep(1000)
+                    #wifi.unlink()
                 except Exception as e:
                     print("Error!", e)
                     sleep(100)

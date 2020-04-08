@@ -1,5 +1,5 @@
-#!/bin/bash
 
+ZTC=~/.zerynth2/dist/r2.4.3/ztc/ztc
 
 for i in "$@"
 do
@@ -30,9 +30,12 @@ case $i in
 esac
 done
 
-cp -rf template.py firmware.py
+cp -rf template.py main.py
 
-sed -i "s/SSID = ' '/SSID = '$SSID'/" firmware.py
-sed -i "s/PASSWORD = ' '/PASSWORD = '$PASSWORD'/" firmware.py
-sed -i "s/DEVICEID = ' '/DEVICEID = '$DEVICEID'/" firmware.py
-sed -i "s/JWT = ' '/JWT = '$JWT'/" firmware.py
+sed -i "s/SSID = ' '/SSID = '$SSID'/" main.py
+sed -i "s/PASSWORD = ' '/PASSWORD = '$PASSWORD'/" main.py
+sed -i "s/DEVICEID = ' '/DEVICEID = '$DEVICEID'/" main.py
+sed -i "s/JWT = ' '/JWT = '$JWT'/" main.py
+
+$ZTC compile ./ esp32_devkitc
+
