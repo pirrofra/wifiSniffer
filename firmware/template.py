@@ -32,10 +32,10 @@ channel_activity_stats = [0] * number_of_channels   # A list of channel activity
 t = timers.timer()                                  # A timer to time the calls to the analysis function
 
 
-SSID = 'IF_Service'
-PASSWORD = '$if2019$'
-DEVICEID= ''
-PASSWORD=''
+SSID = ' '
+PASSWORD = ' '
+DEVICEID= ' '
+JWT=' '
 TAG='wifiSniffer'
 
 device=None
@@ -50,7 +50,7 @@ def init():
         wifi_driver.auto_init()
         #Connect to ZDM
         device=zdm.ZDMClient(device_id=DEVICEID)
-        device.set_password(PASSWORD)
+        device.set_password(JWT)
         device.connect()
     except Exception as e:
         print("Initialization error:", e)
