@@ -32,7 +32,7 @@ def getURL(URL):
     return URL
 
 def getDataFromADM(start,end):
-    URL=BACKEND+"?start="+start+"&end="+end+"&size=99999"
+    URL=BACKEND+"?start="+start+"&end="+end+"&size=-1"
     print(URL)
     response=requests.get(URL,headers=header)
     packetlst=[]
