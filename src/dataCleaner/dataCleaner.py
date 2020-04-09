@@ -23,17 +23,19 @@ dbService=pymongo.MongoClient("tmp_database",27017)
 db=dbService["wifiSniffer"]
 
 def cleaning():
-    db.rawData.rename("cleaning")
-    deleteRedundacies()
-    db.cleaned.rename("cleaning")
-    removeOutliner()
-    db.cleaned.rename("cleaning")
-    highestRSSI()
-    data=db.cleaned.find({},{"_id":0})
-    data=list(data)
-    send(data)
-    db.cleaned.drop()
-    print("finito")
+    try:
+        db.rawData.rename("cleaning")
+        deleteRedundacies()
+        db.cleaned.rename("cleaning")
+        removeOutliner()
+        db.cleaned.rename("cleaning")
+        highestRSSI()
+        data=db.cleaned.find({},{"_id":0})
+        data=list(data)
+        send(data)
+        db.cleaned.drop()
+    except:
+        pass
 
 def deleteRedundacies():
     pipeline=[
@@ -73,7 +75,7 @@ def getMinMax():
 
 
 def removeOutliner():
-    removeLowRSSI(-91)
+    #removeLowRSSI(-91)
     min,max=getMinMax()
     removeOutlinerInterval(min,max+1)
     db.cleaning.drop()
@@ -180,9 +182,8 @@ def send(data):
 
 def main():
     while(True):
-        while(db.rawData.count()==0):
+        while(db.rawData.count_documents({})==0):
             sleep(180)
-        print("iniziato")
         cleaning()
         sleep(180)
 

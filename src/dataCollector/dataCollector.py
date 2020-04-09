@@ -5,7 +5,7 @@ from time import time
 from datetime import datetime
 from bson.son import SON
 
-
+#TODO: crasha se la connessione salta
 
 BACKEND="https://api.zdm.zerynth.com/v1/tsmanager/workspace/"
 header={}
@@ -32,7 +32,7 @@ def getURL(URL):
     return URL
 
 def getDataFromADM(start,end):
-    URL=BACKEND+"?start="+start+"&end"+end
+    URL=BACKEND+"?start="+start+"&end="+end+"&size=99999"
     print(URL)
     response=requests.get(URL,headers=header)
     packetlst=[]
@@ -58,17 +58,21 @@ def getLastScan():
     return list(result)[0]["max"]
 
 def saveData(data):
-    db.rawData.insert_many(data)
+    if len(data)!=0:
+        db.rawData.insert_many(data)
 
 def poll():
     saveScan("1970-01-01T00:00:00Z")
     lastCall=getLastScan()
     while(True):
         now=datetime.utcnow().strftime(date)
-        data=getDataFromADM(lastCall,now)
-        lastCall=now
-        saveScan(now)
-        saveData(data)
+        try:
+            data=getDataFromADM(lastCall,now)
+            lastCall=now
+            saveData(data)
+            saveScan(now)
+        except:
+            pass
         sleep(60)
 
 BACKEND=getURL(BACKEND)

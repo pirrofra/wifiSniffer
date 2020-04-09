@@ -1,3 +1,63 @@
 wifiSniffer, ognuno ha il suo docker
 
 mongoexport --db wifiSniffer --collection cleanData | sed '/"_id":/s/"_id":[^,]*,//' > data.json
+
+
+DANILO: "CC:50:E3:92:5D:D4"
+
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/urllib3/connection.py", line 157, in _new_conn
+    (self._dns_host, self.port), self.timeout, **extra_kw
+  File "/usr/local/lib/python3.7/site-packages/urllib3/util/connection.py", line 61, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/usr/local/lib/python3.7/socket.py", line 748, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno -3] Try again
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/urllib3/connectionpool.py", line 672, in urlopen
+    chunked=chunked,
+  File "/usr/local/lib/python3.7/site-packages/urllib3/connectionpool.py", line 376, in _make_request
+    self._validate_conn(conn)
+  File "/usr/local/lib/python3.7/site-packages/urllib3/connectionpool.py", line 994, in _validate_conn
+    conn.connect()
+  File "/usr/local/lib/python3.7/site-packages/urllib3/connection.py", line 300, in connect
+    conn = self._new_conn()
+  File "/usr/local/lib/python3.7/site-packages/urllib3/connection.py", line 169, in _new_conn
+    self, "Failed to establish a new connection: %s" % e
+urllib3.exceptions.NewConnectionError: <urllib3.connection.VerifiedHTTPSConnection object at 0x7f55d733fbe0>: Failed to establish a new connection: [Errno -3] Try again
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/requests/adapters.py", line 449, in send
+    timeout=timeout
+  File "/usr/local/lib/python3.7/site-packages/urllib3/connectionpool.py", line 720, in urlopen
+    method, url, error=e, _pool=self, _stacktrace=sys.exc_info()[2]
+  File "/usr/local/lib/python3.7/site-packages/urllib3/util/retry.py", line 436, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.zdm.zerynth.com', port=443): Max retries exceeded with url: /v1/tsmanager/workspace/wks-4tka0unw95kr/tag/wifiSniffer?start=2020-04-08T20:03:37Z&end=2020-04-08T20:04:38Z&size=99999 (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x7f55d733fbe0>: Failed to establish a new connection: [Errno -3] Try again'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "dataCollector.py", line 78, in <module>
+    poll()
+  File "dataCollector.py", line 69, in poll
+    data=getDataFromADM(lastCall,now)
+  File "dataCollector.py", line 37, in getDataFromADM
+    response=requests.get(URL,headers=header)
+  File "/usr/local/lib/python3.7/site-packages/requests/api.py", line 76, in get
+    return request('get', url, params=params, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/requests/api.py", line 61, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/requests/sessions.py", line 530, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/local/lib/python3.7/site-packages/requests/sessions.py", line 643, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/requests/adapters.py", line 516, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.zdm.zerynth.com', port=443): Max retries exceeded with url: /v1/tsmanager/workspace/wks-4tka0unw95kr/tag/wifiSniffer?start=2020-04-08T20:03:37Z&end=2020-04-08T20:04:38Z&size=99999 (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x7f55d733fbe0>: Failed to establish a new connection: [Errno -3] Try again'))
