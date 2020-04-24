@@ -1,0 +1,9 @@
+datasources:
+    - name: 'wifiSniffer'
+      type: 'simpod-json-datasource'
+      access: 'proxy'
+      org_id: 1
+      url: 'http://grafana_request:5003'
+      is_default: true
+      version: 1
+      editable: false

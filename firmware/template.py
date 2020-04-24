@@ -222,11 +222,15 @@ def get_packets(sleep_time, iterations_per_channel, activity_percentage, scan_ti
                     page_size = 5
                     page_num = math.ceil(len(payloads) / page_size)
                     device.connect()
+                    page = 0
+                    page_size = 5
+                    page_num = math.ceil(len(payloads) / page_size)
                     while page < page_num:
                         print(page + 1, "/", page_num)
                         for j in range(3):
                             try:
-                                device.publish({"data":payloads[page*page_size:(page+1)*page_size]},TAG)
+                                data=json.dumps({"data":payloads[page*page_size:(page+1)*page_size]})
+                                device.publish(data,TAG)
                                 break
                             except Exception as e:
                                 print("Can't post data",e)
@@ -235,8 +239,8 @@ def get_packets(sleep_time, iterations_per_channel, activity_percentage, scan_ti
                             mcu.reset()
                         page = page + 1
                         sfw.kick()
-                    sleep(1000)
-                    #wifi.unlink()
+                    sleep(5000)
+                    wifi.unlink()
                 except Exception as e:
                     print("Error!", e)
                     sleep(100)

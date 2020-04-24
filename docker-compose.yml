@@ -23,8 +23,6 @@ services:
         volumes:
             - tmpmongodb:/data/db
 
-
-
     data_analysis:
         container_name: data_analysis
         build: ./src/dataAnalysis
@@ -45,7 +43,13 @@ services:
         container_name: grafana_request
         build: ./src/grafanaRequest
         ports:
-            - "5003:5003"
+            - 5003
+
+    grafana:
+        container_name: grafana
+        build: ./src/grafana
+        ports: 
+            - "3000:3000"
 
 
 volumes:

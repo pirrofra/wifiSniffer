@@ -5,7 +5,6 @@ from time import time
 from datetime import datetime
 from bson.son import SON
 
-#TODO: crasha se la connessione salta
 
 BACKEND="https://api.zdm.zerynth.com/v1/tsmanager/workspace/"
 header={}
