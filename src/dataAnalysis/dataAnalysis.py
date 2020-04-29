@@ -4,7 +4,6 @@ import requests
 from peopleCounting import peopleCouting
 from flask.json import dumps
 from relationshipGraph import relationshipGraph
-import Location
 
 dataManager="http://data_manager:5000/"
 #dataManager="http://127.0.0.1:5000/cleanData/workplace"
@@ -12,6 +11,7 @@ dataManager="http://data_manager:5000/"
 app=flask.Flask("dataAnalysis")
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+#error class, with status code
 class InvalidUsage(Exception):
     status_code = 400
 
@@ -27,24 +27,28 @@ class InvalidUsage(Exception):
         rv['message'] = self.message
         return rv
 
+#set error hanlder 
 @app.errorhandler(InvalidUsage)
 def handle_invalid_usage(error):
     response = flask.jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
 
+#raise an exception if an error occured, returns data if everything is ok
 def createResponse(status,data):
     if(status==0):
         return dumps(data)
     else:
         raise InvalidUsage(data, status_code=400)
 
+#get list of macs
 def getScanners(names):
     result=[]
     for mac in names.keys():
         result.append(mac)
     return result
 
+#get map of macs and names (for scanners)
 def getNames(names):
     result={}
     for name in names:
@@ -53,6 +57,7 @@ def getNames(names):
             result[mac]=name
     return result 
 
+#get all macs for a single "name"
 def getSingleName(name):
     result=requests.get(dataManager+"/device/"+name)
     data=result.json()
@@ -61,6 +66,7 @@ def getSingleName(name):
         macs.append(el["mac"])
     return macs
 
+#get from dataManager the list of workplaces for every device scanned
 def getWorkplaces(start,end,scanner,names):
     payload={
             "start":start,
@@ -71,6 +77,7 @@ def getWorkplaces(start,end,scanner,names):
     data=result.json()
     return relationshipGraph.getWorkplaceDictionary(data,names)
 
+#get data from dataManager, gives them to the graphing algorithm
 def getGraph(start,end,nameList):
     names=getNames(nameList)
     scanners=getScanners(names)
@@ -87,12 +94,14 @@ def getGraph(start,end,nameList):
     return result
 
 
+#get data from dataManager, gives them to the people counting algorithm
 def getPeopleCount(start,end,scanner,at,wt,dt):
     if(start==None or end==None or scanner==None or at==None or dt==None or wt==None):
         result=createResponse(-1,"MissingParameter")
     elif(at<=0 or dt<=0 or wt<=0):
         result=createResponse(-1,"Invalid Parameters")
     else:
+        #30 min before, 30 min after
         payload={
             "start":start-1800,
             "end":end+1800,
@@ -105,6 +114,7 @@ def getPeopleCount(start,end,scanner,at,wt,dt):
         result=createResponse(0,data)
     return result
 
+#route that returns the result of the people counting algorithm for every seconds
 @app.route('/api/peopleCounting/<roomName>',methods=['GET'])
 def getPeopleinRoom(roomName):
     if(flask.request.is_json==False):
@@ -120,6 +130,7 @@ def getPeopleinRoom(roomName):
         result=getPeopleCount(start,end,scanners,at,wt,dt)
     return result
     
+#route that returns the relationship graph in json
 @app.route("/api/relationshipGraph",methods=['GET'])
 def getRelationshipGraph():
     if(flask.request.is_json==False):
@@ -129,6 +140,7 @@ def getRelationshipGraph():
         if(type(parameters["rooms"])!= list):
             result=createResponse(-1,"Rooms is not a List")
         else:
+            #get parameters from json attachment
             rooms=parameters["rooms"]
             start=parameters["start"]
             end=parameters["end"]
@@ -138,6 +150,7 @@ def getRelationshipGraph():
                 result=createResponse(0,getGraph(start,end,rooms))
     return result            
 
+#request to the dataManager that returns the list of devices
 def roomList():
     response=requests.get(dataManager+"device")
     data=response.json()
@@ -147,12 +160,13 @@ def roomList():
             list.append(element["name"])
     return list
 
-
-@app.route("/api/roomList",methods=['GET'])
+#get all scanners devices
+@app.route("/api/room",methods=['GET'])
 def getRoomList():
     list=roomList()
     return dumps(list)
 
+#route to get an html page with the relationship graph
 @app.route("/api/relationshipGraph/graph.html")
 def getGraphHTML():
     start=int(flask.request.args.get("from"))//1000
@@ -160,3 +174,16 @@ def getGraphHTML():
     list=roomList()
     data=getGraph(start,end,list)
     return flask.render_template("graph.html",arg=data)
+
+#route to get and register new devices scanner
+@app.route("/api/room/<name>",methods=['GET','POST'])
+def room(name):
+    if flask.request.method== "GET":
+        #get, return data
+        result=requests.get(dataManager+"device/"+name)
+        return result.json()
+    else:
+        #post, save data
+        payload=flask.request.get_json()
+        result=requests.post(dataManager+"device/"+name,json=payload)
+        return result.json()

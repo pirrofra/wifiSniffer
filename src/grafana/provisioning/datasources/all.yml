@@ -1,3 +1,4 @@
+#automatically adds the correct datasource to grafana
 datasources:
     - name: 'wifiSniffer'
       type: 'simpod-json-datasource'

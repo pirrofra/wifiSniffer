@@ -12,6 +12,7 @@ dbService=pymongo.MongoClient("database",27017)
 
 db=dbService["wifiSniffer"]
 
+#error class, with status code
 class InvalidUsage(Exception):
     status_code = 400
 
@@ -27,29 +28,27 @@ class InvalidUsage(Exception):
         rv['message'] = self.message
         return rv
 
+#set error hanlder 
 @app.errorhandler(InvalidUsage)
 def handle_invalid_usage(error):
     response = flask.jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
 
+#raise an exception if an error occured, returns data if everything is ok
 def createResponse(status,data):
     if(status==0):
         return dumps(data)
     else:
         raise InvalidUsage(data, status_code=400)
 
+#returns all data with timestamp between "start" and "end" by scanners listed in "scanner"
+#from cleanData collection
 def getCleanData(scanner,start,end):
     if(scanner==None or start==None or end==None):
         result=createResponse(-1,"MissingParameterForSearch")
     else:
-        query={
-            "room": { "$in": scanner },
-            "timestamp":{
-                "$gte":start,
-                "$lt":end
-            }
-        }
+        #aggregate insted of find to allow Disk Use
         data=db.cleanData.aggregate([
             {"$match":{
                 "room": { "$in": scanner },
@@ -59,8 +58,9 @@ def getCleanData(scanner,start,end):
             {"$sort":SON([("timestamp",1),("room",-1)])}
         ],allowDiskUse=True)
         result=createResponse(0,data)
-    return result
+    return result #result of the aggregation in json
 
+#insert "data" in cleanData Collection
 def postCleanData(data):
     if(type (data) is not list):
         print(type(data))
@@ -70,21 +70,26 @@ def postCleanData(data):
         result=createResponse(0,"Success")
     return result
 
+#query that returns a mac address, given a name
 def getSingleDevice(name):
     query={"name": name}
     data=db.devices.find(query,{"_id":0})
     return createResponse(0,data)
 
-
+#add a device name and a mac address in the "devices" collection
 def postSingleDevice(name,mac):
     obj={"name":name,"mac":mac}
     db.devices.insert_one(obj)
     return createResponse(0,"Success")
 
+#assign at every mac address spotted a "workplace" (the room where he's most found in)
 def findWorkplace(scanner,start,end):
     if(scanner==None or start==None or end==None):
         result=createResponse(-1,"MissingParameterForSearch")
     else:
+        #group by room and mac
+        #count records
+        #return only the room and where with the highest count
         pipeline=[
             {"$match":{"timestamp":{"$gte":start,"$lt":end},"room": { "$in": scanner }}},
             {"$group":{
@@ -105,6 +110,9 @@ def findWorkplace(scanner,start,end):
         result= createResponse(0,db.cleanData.aggregate(pipeline,allowDiskUse=True))
     return result
 
+#route to get or save clean data
+#if it's a get request, the json attachment contains
+#{start:"start",end:"end",scanner:["scanner1","scanner2", ... "scanner3"]}
 @app.route('/cleanData',methods=['POST', 'GET'])
 def cleanData():
     if(flask.request.is_json==False):
@@ -121,11 +129,14 @@ def cleanData():
             result=postCleanData(data)
     return result
 
+#get all device saved in "devices" collection
 @app.route('/device',methods=['GET'])
 def getAllDevices():
     data=db.devices.find({},{"_id":0})
     return createResponse(0,data)
 
+#route to save or get the mac address of a given device name
+#if it's a post request, the json attachment is {mac:"mac address"}
 @app.route('/device/<name>',methods=['GET','POST'])
 def singleDevice(name):
     if flask.request.method== "GET":
@@ -139,6 +150,7 @@ def singleDevice(name):
             result=postSingleDevice(name,mac)
     return result
 
+#route that get all workplaces of devices scanned
 @app.route("/cleanData/workplace",methods=['GET'])
 def workplace():
     if(flask.request.is_json==False):

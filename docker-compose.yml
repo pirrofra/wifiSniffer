@@ -33,7 +33,7 @@ services:
         container_name: data_collector
         build: ./src/dataCollector
         ports:
-            - "5002:5002"
+            - 5002
 
     data_cleaner:
         container_name: data_cleaner

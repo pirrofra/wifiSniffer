@@ -1,11 +1,12 @@
+#creates a workplace dictionary where "mac" is the key of the device spotted
+#and the values is the name of the room
 def getWorkplaceDictionary(data,names):
     dic={}
     for obj in data:
         dic[obj["mac"]]=names[obj["room"]]
     return dic
     
-
-
+#create a graph, where the cost on the nodes is the number of people from that workplace that has been spotted in another workplace
 def createGraph(data,workplaces):
     graph={}
     for element in data:
@@ -19,6 +20,7 @@ def createGraph(data,workplaces):
                 graph[workplace][element["roomName"]]=graph[workplace][element["roomName"]]+1
     return graph
 
+#add the room name to the data
 def renameData(data,names):
     newData=[]
     for element in data:
