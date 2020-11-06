@@ -124,9 +124,15 @@ def getPeopleinRoom(roomName):
         parameters=flask.request.get_json()
         start=parameters["start"]
         end=parameters["end"]
-        at=parameters["at"]
-        wt=parameters["wt"]
-        dt=parameters["dt"]
+        try:
+            at=parameters["at"]
+            wt=parameters["wt"]
+            dt=parameters["dt"]
+        except:
+            at=6
+            wt=2
+            dt=6
+            
         result=getPeopleCount(start,end,scanners,at,wt,dt)
     return result
     
