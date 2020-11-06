@@ -32,6 +32,8 @@ services:
     data_collector:
         container_name: data_collector
         build: ./src/dataPreprocessing/dataCollector
+        env_file:
+            - "auth.env"
 
 
     data_cleaner:

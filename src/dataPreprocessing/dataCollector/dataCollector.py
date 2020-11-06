@@ -4,6 +4,7 @@ from time import sleep
 from time import time
 from datetime import datetime
 from bson.son import SON
+from os import getenv
 
 #ZDM URL
 BACKEND="https://api.zdm.zerynth.com/v1/tsmanager/workspace/" 
@@ -15,24 +16,17 @@ date="%Y-%m-%dT%H:%M:%SZ"
 dbService=pymongo.MongoClient("tmp_database",27017)
 db=dbService["wifiSniffer"]
 
-#get the n-th line in a file
-def getLine(path,int):
-    file=open(path,"r")
-    lines=file.read().split("\n")
-    str=lines[int-1]
-    file.close()
-    return str
 
 #set header for all the requests to ZDM 
-#get JWT token form the 2nd line in the "auth" file
+#get JWT token from enviroment variable
 def setHeader():
-    JWT=getLine("auth",2)
+    JWT=getenv("JWT")
     header['Authorization']='Bearer ' + JWT
 
 #add the workspaceID to the URL
-#fro the 1st line in "auth" file
+#get workspacID from enviroment variable
 def getURL(URL):
-    workspaceID=getLine("auth",1)
+    workspaceID=getenv("WORKSPACEID")
     URL=URL+workspaceID+"/tag/wifiSniffer"
     return URL
 
