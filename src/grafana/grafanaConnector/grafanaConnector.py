@@ -4,8 +4,8 @@ from datetime import datetime
 from json import dumps
 import pytz
 
-app=flask.Flask("grafanaRequest")
-api="http://data_analysis:5001/api/"
+app=flask.Flask("grafanaConnector")
+api="http://data_analysis:5000/api/"
 
 
 #get timestamp from a date string

@@ -11,7 +11,7 @@ services:
         container_name: database
         image: mongo:4.2.2
         ports:
-            - "27017:27017"
+            - 27017
         volumes:
             - mongodb:/data/db
     
@@ -27,29 +27,38 @@ services:
         container_name: data_analysis
         build: ./src/dataAnalysis
         ports:
-            - "5001:5001"
+            - 5000
     
     data_collector:
         container_name: data_collector
-        build: ./src/dataCollector
-        ports:
-            - 5002
+        build: ./src/dataPreprocessing/dataCollector
+
 
     data_cleaner:
         container_name: data_cleaner
-        build: ./src/dataCleaner
+        build: ./src/dataPreprocessing/dataCleaner
     
-    grafana_request:
-        container_name: grafana_request
-        build: ./src/grafanaRequest
+    grafana_connector:
+        container_name: grafana_connector
+        build: ./src/grafana/grafanaConnector
         ports:
-            - 5003
+            - 5000
 
     grafana:
         container_name: grafana
-        build: ./src/grafana
+        build: ./src/grafana/grafana
         ports: 
-            - "3000:3000"
+            - 3000
+    
+    nginx:
+    restart: always
+    build: ./src/nginx
+    container_name: nginx
+    links:
+        - "device_manager"
+        - "grafana"
+    ports:
+        - "80:80"
 
 
 volumes:

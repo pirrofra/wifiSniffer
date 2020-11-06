@@ -4,7 +4,7 @@ datasources:
       type: 'simpod-json-datasource'
       access: 'proxy'
       org_id: 1
-      url: 'http://grafana_request:5003'
+      url: 'http://grafana_connector:5000'
       is_default: true
       version: 1
       editable: false
