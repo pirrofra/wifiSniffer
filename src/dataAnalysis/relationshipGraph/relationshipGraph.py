@@ -1,33 +1,135 @@
-#creates a workplace dictionary where "mac" is the key of the device spotted
-#and the values is the name of the room
-def getWorkplaceDictionary(data,names):
-    dic={}
-    for obj in data:
-        dic[obj["mac"]]=names[obj["room"]]
-    return dic
+class trajectory:
     
-#create a graph, where the cost on the nodes is the number of people from that workplace that has been spotted in another workplace
-def createGraph(data,workplaces):
-    graph={}
+    def __init__(self,mac):
+        self.mac=mac
+        self.locationCount={}
+        self.locations={}
+        self.slot=0
+        self.emptySlots=0
+
+    def addToTrajectory(self,data):
+        self.slot=self.slot+1
+        if data == None:
+            self.emptySlots=self.emptySlots+1
+        else:
+            count={}
+            lastSeen={}
+            for element in data:
+                if(count.get(element["room"])==None):
+                    count[element["room"]]=0
+                count[element["room"]]=count[element["room"]]+1
+                if(lastSeen.get(element["room"])==None):
+                    lastSeen[element["room"]]=0
+                    lastSeen[element["room"]]=max(lastSeen[element["room"]],element["timestamp"])
+            
+            Max=0
+            Location=None
+            for room in count.keys():
+                if(count[room]>Max):
+                    Location=room
+                    Max=count[room]
+                elif (count[room]==Max and lastSeen[Location]<lastSeen[room]):
+                    Location=room
+                    Max=count[room]
+            timestamp=(lastSeen[Location]//300)*300
+            self.locations[timestamp]=Location
+            if(self.locationCount.get(Location)):
+                self.locationCount[Location]=0
+            self.locationCount[Location]=self.locationCount[Location]+1
+
+
+def group(data,names):
+    result={}
+    Min=Max=data[0]["timestamp"]
     for element in data:
-        if(workplaces.get(element["mac"])!=None):
-            workplace=workplaces[element["mac"]]
-            if(element["roomName"]!=workplace):
-                if(graph.get(workplace)==None):
-                    graph[workplace]={}
-                if(graph[workplace].get(element["roomName"])==None):
-                    graph[workplace][element["roomName"]]=0
-                graph[workplace][element["roomName"]]=graph[workplace][element["roomName"]]+1
+        timestamp=(element["timestamp"]//300)*300
+        Min=min(Min,timestamp)
+        Max=max(Max,timestamp)
+        mac=element["mac"]
+        element["room"]=names[element["room"]]
+        if(result.get(mac)==None):
+            result[mac]={}
+        if(result[mac].get(timestamp)==None):
+            result[mac][timestamp]=[]
+        result[mac][timestamp].append(element)
+    return result,Min,Max
+
+def createTrajectories(data,names):
+    result=[]
+    data,Min,Max=group(data,names)
+    for mac in data.keys():
+        tr=trajectory(mac)
+        while Min <=Max:
+            tr.addToTrajectory(data[mac][Min])
+            Min=Min+300
+        result.append(tr)
+    return result,Min,Max
+
+def removeTrajectories(trajectoryList,Tmin,Tmax):
+    newResult=[]
+    for tr in trajectoryList:
+        coef=(tr.slot - tr.emptySlots)/tr.slot
+        if(coef>=Tmin and coef<=Tmax):
+            newResult.append(tr)
+    return newResult
+
+def findWorkplaces(trajectoryList):
+    result={}
+    for tr in trajectoryList:
+        mac=tr.mac
+        Max=0
+        Workplace=None
+        for room in tr.locationCount.keys():
+            if(tr.locationCount[room]>Max):
+                Max=tr.locationCount[room]
+                Workplace=room
+        result[mac]=Workplace
+    return result
+        
+def updateGraph(graph,a,b):
+    if(graph.get(a)==None):
+        graph[a]={}
+    if(graph[a].get(b)==None):
+        graph[a][b]=0
+    graph[a][b]=graph[a][b]+1
+
+def createRelationshipGraph(trajectoryList,Min,Max):
+    graph={}
+    workplaces=findWorkplaces(trajectoryList)
+    for tr in trajectoryList:
+        workplace=workplaces[tr.mac]
+        prev=None
+        while(Min<=Max):
+            if(tr.locations.get(Min)==None):
+                prev=None
+            else:
+                current=tr.locations[Min]
+                if(prev!=current and current != workplace):
+                    updateGraph(graph,workplace,current)
+                prev=current
+            Min=Min+300
     return graph
 
-#add the room name to the data
-def renameData(data,names):
-    newData=[]
-    for element in data:
-        if(names.get(element["room"])):
-            element["roomName"]=names[element["room"]]
-            newData.append(element)
-    return newData
+def createMovementsGraph(trajectoryList,Min,Max):
+    graph={}
+    for tr in trajectoryList:
+        prev=None
+        while(Min<=Max):
+            if(tr.locations.get(Min)==None):
+                prev=None
+            else:
+                current=tr.locations[Min]
+                if(prev!=current):
+                    updateGraph(graph,prev,current)
+                prev=current
+            Min=Min+300
+    return graph  
 
-
-    
+def createGraph(data,names,Tmin,Tmax,group):
+    trajectoryList,Min,Max=createTrajectories(data,names)
+    trajectoryList=removeTrajectories(trajectoryList,Tmin,Tmax)
+    if(group==False):
+        graph=createMovementsGraph(trajectoryList,Min,Max)
+    else:
+        graph=createRelationshipGraph(trajectoryList,Min,Max)
+    return graph

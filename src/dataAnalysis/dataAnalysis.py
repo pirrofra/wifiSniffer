@@ -66,19 +66,9 @@ def getSingleName(name):
         macs.append(el["mac"])
     return macs
 
-#get from dataManager the list of workplaces for every device scanned
-def getWorkplaces(start,end,scanner,names):
-    payload={
-            "start":start,
-            "end":end,
-            "scanner":scanner
-        }
-    result=requests.get(dataManager+"cleanData/workplace",json=payload)
-    data=result.json()
-    return relationshipGraph.getWorkplaceDictionary(data,names)
 
 #get data from dataManager, gives them to the graphing algorithm
-def getGraph(start,end,nameList):
+def getGraph(start,end,nameList,Tmin,Tmax,group):
     names=getNames(nameList)
     scanners=getScanners(names)
     payload={
@@ -88,9 +78,7 @@ def getGraph(start,end,nameList):
     }
     result=requests.get(dataManager+"/cleanData",json=payload)
     data=result.json()
-    data=relationshipGraph.renameData(data,names)
-    workplaces=getWorkplaces(start,end,scanners,names)
-    result=relationshipGraph.createGraph(data,workplaces)
+    result=relationshipGraph.createGraph(data,names,Tmin,Tmax,group)
     return result
 
 
@@ -150,11 +138,44 @@ def getRelationshipGraph():
             rooms=parameters["rooms"]
             start=parameters["start"]
             end=parameters["end"]
+            try:
+                Tmin=parameters["Tmin"]
+                Tmax=parameters["Tmax"]
+            except:
+                Tmin=0.5
+                Tmax=0.01
             if(start==None or end==None or rooms==None):
                 result=createResponse(-1,"MissingParameterForSearch")
             else:
-                result=createResponse(0,getGraph(start,end,rooms))
+                result=createResponse(0,getGraph(start,end,rooms,Tmin,Tmax,True))
     return result            
+
+#route that returns the movements graph in json
+@app.route("/api/MovementGraph",methods=['GET'])
+def getMovementGraph():
+    if(flask.request.is_json==False):
+        result=createResponse(-1,"Data is not a Json File")
+    else:
+        parameters=flask.request.get_json()
+        if(type(parameters["rooms"])!= list):
+            result=createResponse(-1,"Rooms is not a List")
+        else:
+            #get parameters from json attachment
+            rooms=parameters["rooms"]
+            start=parameters["start"]
+            end=parameters["end"]
+            try:
+                Tmin=parameters["Tmin"]
+                Tmax=parameters["Tmax"]
+            except:
+                Tmin=0.5
+                Tmax=0.01
+            if(start==None or end==None or rooms==None):
+                result=createResponse(-1,"MissingParameterForSearch")
+            else:
+                result=createResponse(0,getGraph(start,end,rooms,Tmin,Tmax,False))
+    return result 
+
 
 #request to the dataManager that returns the list of devices
 def roomList():
@@ -178,7 +199,7 @@ def getGraphHTML():
     start=int(flask.request.args.get("from"))//1000
     end=int(flask.request.args.get("to"))//1000
     list=roomList()
-    data=getGraph(start,end,list)
+    data=getGraph(start,end,list,0.01,0.5,True)
     return flask.render_template("graph.html",arg=data)
 
 #route to get and register new devices scanner
