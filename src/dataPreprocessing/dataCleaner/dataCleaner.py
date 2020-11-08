@@ -79,7 +79,9 @@ def getMinMax():
 def removeOutliner():
     #removeLowRSSI(-91)
     min,max=getMinMax()
-    removeOutlinerInterval(min,max+1)
+    while(min<=max):
+        removeOutlinerInterval(min,min+300)
+        min=min+300
     db.cleaning.drop()
 
 #remove the outliner in the "start" and "end" interval
@@ -133,6 +135,7 @@ def getAvgStdDev(start,end):
     return dic
 
 #remove all packets with an rssi below a certain value
+#NOT USED
 def removeLowRSSI(low):
     query={"rssi":{"$lte":low}}
     db.cleaning.delete_many(query)
@@ -170,6 +173,7 @@ def highestRSSIInterval(start,end):
 
     #join between data in the interval and the tmp collection
     #every packet now has a field "room" where is specified who spotted the highest rssi value
+    #only packets with scanner_id = room are saved.
     #mac in cleaning and mac in tmp as used as field in the join
     join=[
         {"$match":{"timestamp":{"$gte":start,"$lt":end}}},
@@ -184,6 +188,9 @@ def highestRSSIInterval(start,end):
             "room":{"$arrayElemAt":["$room",0]},
             "timestamp":"$timestamp",
             "rssi":"$rssi"}},
+        {"$match":{
+            "scanner_id":"$room.room"
+        }},
         {"$project":{
             "mac":"$mac",
             "scanner_id":"$scanner_id",

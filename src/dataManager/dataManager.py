@@ -83,32 +83,32 @@ def postSingleDevice(name,mac):
     return createResponse(0,"Success")
 
 #assign at every mac address spotted a "workplace" (the room where he's most found in)
-def findWorkplace(scanner,start,end):
-    if(scanner==None or start==None or end==None):
-        result=createResponse(-1,"MissingParameterForSearch")
-    else:
-        #group by room and mac
-        #count records
-        #return only the room and where with the highest count
-        pipeline=[
-            {"$match":{"timestamp":{"$gte":start,"$lt":end},"room": { "$in": scanner }}},
-            {"$group":{
-                "_id":{
-                    "mac":"$mac",
-                    "room":"$room"},
-                "count":{"$sum":1}}},
-            {"$sort":SON([("_id.mac",1),("count",-1)])},
-            {"$group":{
-                "_id":"$_id.mac",
-                "room":{"$first":"$_id.room"},
-                "count":{"$first":"$count"}}},
-            {"$project":{
-                "_id":0,
-                "mac":"$_id",
-                "room":"$room",
-                "count":"$count"}}]
-        result= createResponse(0,db.cleanData.aggregate(pipeline,allowDiskUse=True))
-    return result
+# def findWorkplace(scanner,start,end):
+#     if(scanner==None or start==None or end==None):
+#         result=createResponse(-1,"MissingParameterForSearch")
+#     else:
+#         #group by room and mac
+#         #count records
+#         #return only the room and where with the highest count
+#         pipeline=[
+#             {"$match":{"timestamp":{"$gte":start,"$lt":end},"room": { "$in": scanner }}},
+#             {"$group":{
+#                 "_id":{
+#                     "mac":"$mac",
+#                     "room":"$room"},
+#                 "count":{"$sum":1}}},
+#             {"$sort":SON([("_id.mac",1),("count",-1)])},
+#             {"$group":{
+#                 "_id":"$_id.mac",
+#                 "room":{"$first":"$_id.room"},
+#                 "count":{"$first":"$count"}}},
+#             {"$project":{
+#                 "_id":0,
+#                 "mac":"$_id",
+#                 "room":"$room",
+#                 "count":"$count"}}]
+#         result= createResponse(0,db.cleanData.aggregate(pipeline,allowDiskUse=True))
+#     return result
 
 #route to get or save clean data
 #if it's a get request, the json attachment contains
@@ -151,15 +151,15 @@ def singleDevice(name):
     return result
 
 #route that get all workplaces of devices scanned
-@app.route("/cleanData/workplace",methods=['GET'])
-def workplace():
-    if(flask.request.is_json==False):
-        result=createResponse(-1,"Data is not a Json File")
-    else:
-        data=flask.request.get_json()
-        start=data["start"]
-        end=data["end"]
-        scanner=data["scanner"]
-        result=findWorkplace(scanner,start,end)
-    return result
+# @app.route("/cleanData/workplace",methods=['GET'])
+# def workplace():
+#     if(flask.request.is_json==False):
+#         result=createResponse(-1,"Data is not a Json File")
+#     else:
+#         data=flask.request.get_json()
+#         start=data["start"]
+#         end=data["end"]
+#         scanner=data["scanner"]
+#         result=findWorkplace(scanner,start,end)
+#     return result
 
