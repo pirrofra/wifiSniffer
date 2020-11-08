@@ -80,9 +80,12 @@ class statistics:
             state=3
             slot=self.dt
         elif(state==3):
+            state=4
+            slot=1
+            self.countedPeople=self.countedPeople-1
+        elif(state==4):
             state=0
             slot=0
-            self.countedPeople=self.countedPeople-1
         return state,slot
 
     def spottedRequest(self,mac):
@@ -96,6 +99,10 @@ class statistics:
         elif(state==3):
             state=2
             slot=1
+        elif (state==4):
+            state=2
+            slot=1
+            self.countedPeople=self.countedPeople+1
         return state,slot
     
     def firstArrival(self,mac):
