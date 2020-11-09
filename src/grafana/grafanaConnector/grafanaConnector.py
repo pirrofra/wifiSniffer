@@ -37,11 +37,13 @@ def query():
     for target in parameters["targets"]:
         payload={"start":start,"end":end,"at":6,"wt":2,"dt":6} #at, wt, dt default value
         name=target["target"]
-        if(target.get("data")!=None):
+        try:
             additional=target["data"]
             payload["at"]=additional["at"]
             payload["dr"]=additional["dt"]
             payload["wt"]=additional["wt"]
+        except:
+            pass
         response=requests.get(api+"peopleCounting/"+name,json=payload)
         datapoints=[]
         data=response.json()
@@ -50,8 +52,8 @@ def query():
             b=point["people"]
             if(a>=start):
                 datapoints.append([b,a*1000])
-        if(target["type"]=="timeserie"):
-            result.append({"target":target,"datapoints":datapoints})
+        if(target["type"]=="timeseries"):
+            result.append({"target":name,"datapoints":datapoints})
         else:
             coloumns=[{"text":"people","type":"number"},{"text":"timestamp","type":"time"}]
             result.append({"coloumns":coloumns,"rows":datapoints,"type":"table"})
