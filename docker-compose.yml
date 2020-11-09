@@ -49,6 +49,9 @@ services:
     grafana:
         container_name: grafana
         build: ./src/grafana/grafana
+        environment:
+            - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana
+            - GF_SERVER_SERVE_FROM_SUB_PATH=true
         ports: 
             - 3000
     

@@ -33,7 +33,7 @@ class trajectory:
                     Max=count[room]
             timestamp=(lastSeen[Location]//300)*300
             self.locations[timestamp]=Location
-            if(self.locationCount.get(Location)):
+            if(self.locationCount.get(Location)==None):
                 self.locationCount[Location]=0
             self.locationCount[Location]=self.locationCount[Location]+1
 
@@ -58,10 +58,11 @@ def createTrajectories(data,names):
     result=[]
     data,Min,Max=group(data,names)
     for mac in data.keys():
+        curr=Min
         tr=trajectory(mac)
-        while Min <=Max:
-            tr.addToTrajectory(data[mac][Min])
-            Min=Min+300
+        while curr <= Max:
+            tr.addToTrajectory(data[mac].get(Min))
+            curr=curr+300
         result.append(tr)
     return result,Min,Max
 
