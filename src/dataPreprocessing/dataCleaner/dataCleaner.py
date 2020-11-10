@@ -216,7 +216,7 @@ def highestRSSIInterval(start,end):
             "room":"$room.room",
             "timestamp":"$timestamp",
             "rssi":"$rssi"}},
-            {"$match":{"$expr":{"$eq":["$room","$scanner_id"]} }},
+        {"$match":{"$expr":{"$eq":["$room","$scanner_id"]} }},
         {"$merge":"cleaned"}]
     db.cleaning.aggregate(join,allowDiskUse=True)
 

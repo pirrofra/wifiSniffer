@@ -61,7 +61,7 @@ def createTrajectories(data,names):
         curr=Min
         tr=trajectory(mac)
         while curr <= Max:
-            tr.addToTrajectory(data[mac].get(Min))
+            tr.addToTrajectory(data[mac].get(curr))
             curr=curr+300
         result.append(tr)
     return result,Min,Max
@@ -93,6 +93,7 @@ def updateGraph(graph,a,b):
     if(graph[a].get(b)==None):
         graph[a][b]=0
     graph[a][b]=graph[a][b]+1
+    return graph
 
 def createRelationshipGraph(trajectoryList,Min,Max):
     graph={}
@@ -100,30 +101,32 @@ def createRelationshipGraph(trajectoryList,Min,Max):
     for tr in trajectoryList:
         workplace=workplaces[tr.mac]
         prev=None
-        while(Min<=Max):
-            if(tr.locations.get(Min)==None):
+        time=Min
+        while(time<=Max):
+            if(tr.locations.get(time)==None):
                 prev=None
             else:
-                current=tr.locations[Min]
-                if(prev!=current and current != workplace):
-                    updateGraph(graph,workplace,current)
+                current=tr.locations[time]
+                if(prev!=None and prev!=current and current != workplace):
+                    graph=updateGraph(graph,workplace,current)
                 prev=current
-            Min=Min+300
+            time=time+300
     return graph
 
 def createMovementsGraph(trajectoryList,Min,Max):
     graph={}
     for tr in trajectoryList:
         prev=None
-        while(Min<=Max):
-            if(tr.locations.get(Min)==None):
+        time=Min
+        while(time<=Max):
+            if(tr.locations.get(time)==None):
                 prev=None
             else:
-                current=tr.locations[Min]
-                if(prev!=current):
-                    updateGraph(graph,prev,current)
+                current=tr.locations[time]
+                if(prev!=None and prev!=current):
+                    graph=updateGraph(graph,prev,current)
                 prev=current
-            Min=Min+300
+            time=time+300
     return graph  
 
 def createGraph(data,names,Tmin,Tmax,group):
