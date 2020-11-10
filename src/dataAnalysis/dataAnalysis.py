@@ -168,8 +168,8 @@ def getMovementGraph():
                 Tmin=parameters["Tmin"]
                 Tmax=parameters["Tmax"]
             except:
-                Tmin=0.5
-                Tmax=0.01
+                Tmin=0.01
+                Tmax=0.5
             if(start==None or end==None or rooms==None):
                 result=createResponse(-1,"MissingParameterForSearch")
             else:
