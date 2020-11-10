@@ -14,8 +14,8 @@ JWT='Access Token of the ZDM account'
 
 ## Deployment
 
-Use docker compose to run the utility.\
-In the main directory of the repository use:
+Docker-composed is used to create and manage all containers\
+In the main directory use:
 
 ```bash
 docker-compose build
