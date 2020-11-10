@@ -1,6 +1,7 @@
 # wifiSniffer
 
 wifiSniffer is an utility that analyzes Wifi Probe requests for counting people or tracking their movements.
+This is my final project for Bachelor degree's thesis.
 
 ## Configuration
 Before deploying the utility, if you're planning to use it with a Zerynth Device, the content of auth.env must be changed:
