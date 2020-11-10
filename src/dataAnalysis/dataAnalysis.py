@@ -1,9 +1,9 @@
 import flask
 from flask_cors import CORS
 import requests
-from peopleCounting import peopleCouting
+from peopleCounting import peopleCounting
 from flask.json import dumps
-from relationshipGraph import relationshipGraph
+from graphUtil import graph
 
 dataManager="http://data_manager:5000/"
 #dataManager="http://127.0.0.1:5000/cleanData/workplace"
@@ -78,7 +78,7 @@ def getGraph(start,end,nameList,Tmin,Tmax,group):
     }
     result=requests.get(dataManager+"/cleanData",json=payload)
     data=result.json()
-    result=relationshipGraph.createGraph(data,names,Tmin,Tmax,group)
+    result=graph.createGraph(data,names,Tmin,Tmax,group)
     return result
 
 
@@ -97,8 +97,8 @@ def getPeopleCount(start,end,scanner,at,wt,dt):
         }
         result=requests.get(dataManager+"/cleanData",json=payload)
         data=result.json()
-        stats=peopleCouting.statistics(at,wt,dt)
-        data=peopleCouting.count(data,stats)
+        stats=peopleCounting.statistics(at,wt,dt)
+        data=peopleCounting.count(data,stats)
         result=createResponse(0,data)
     return result
 
