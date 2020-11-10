@@ -19,7 +19,7 @@ services:
         container_name: tmp_database
         image: mongo:4.2.2
         ports:
-            - 27017
+            - "27017:27017"
         volumes:
             - tmpmongodb:/data/db
 
@@ -35,11 +35,16 @@ services:
         env_file:
             - "auth.env"
 
-
     data_cleaner:
         container_name: data_cleaner
         build: ./src/dataPreprocessing/dataCleaner
     
+    data_injector:
+        container_name: data_injector
+        build: ./src/dataPreprocessing/dataInjector
+        ports:
+            - 5000
+
     grafana_connector:
         container_name: grafana_connector
         build: ./src/grafana/grafanaConnector
@@ -52,6 +57,8 @@ services:
         environment:
             - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana
             - GF_SERVER_SERVE_FROM_SUB_PATH=true
+        volumes:
+            - grafana_volume:/var/lib/grafana
         ports: 
             - 3000
     
@@ -66,3 +73,4 @@ services:
 volumes:
     mongodb:
     tmpmongodb:
+    grafana_volume:

@@ -1,4 +1,5 @@
 import pymongo
+import time
 from bson.json_util import dumps
 from bson.son import SON
 from time import sleep
@@ -17,12 +18,16 @@ db=dbService["wifiSniffer"]
 
 def cleaning():
     try:
+        start=time.time()
         db.rawData.rename("cleaning")
         deleteRedundacies()
         db.cleaned.rename("cleaning")
         removeOutliner()
         db.cleaned.rename("cleaning")
         highestRSSI()
+        end=time.time()
+        elapsed=end-start
+        print("TIME USED FOR CLEANING: "+str(elapsed)+" seconds",flush=True)
         data=db.cleaned.find({},{"_id":0})
         data=list(data)
         send(data)
@@ -217,4 +222,4 @@ def main(time):
         sleep(time)
 
 #sleeps every 120 seconds
-main(120)
+main(300)
