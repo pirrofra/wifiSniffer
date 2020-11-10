@@ -5,6 +5,7 @@ from bson.son import SON
 from time import sleep
 from math import sqrt
 import requests
+import hashlib
 
 
 
@@ -16,10 +17,13 @@ dbService=pymongo.MongoClient("tmp_database",27017)
 
 db=dbService["wifiSniffer"]
 
+
 def cleaning():
     try:
         start=time.time()
         db.rawData.rename("cleaning")
+        hashmacs()
+        db.cleaned.rename("cleaning")
         deleteRedundacies()
         db.cleaned.rename("cleaning")
         removeOutliner()
@@ -34,6 +38,19 @@ def cleaning():
         db.cleaned.drop()
     except:
         pass
+
+
+def hashmacs():
+    packetlst=[]
+    data=db.cleaning.find({},{"_id":0})
+    data=list(data)
+    for pkt in data:
+        encodedMac=str.encode(pkt["mac2"])
+        pkt["mac2"]=hashlib.md5(encodedMac).hexdigest()
+        packetlst.append(pkt)
+    db.cleaning.drop()
+    db.cleaned.insert_many(data)
+
 
 #delete packets redundancies
 #if the same mac address has been spotted by the same scanner in the same seconds, only saves the one with the highest RSSI

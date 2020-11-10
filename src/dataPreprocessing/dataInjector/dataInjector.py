@@ -38,16 +38,6 @@ def createResponse(status,data):
     else:
         raise InvalidUsage(data, status_code=400)
 
-def hashMACs(data):
-    packetlst=[]
-    for pkt in data:
-        try:
-            encodedMac=str.encode(pkt["mac2"])
-            pkt["mac2"]=hashlib.md5(encodedMac).hexdigest()
-            packetlst.append(pkt)
-        except:
-            pass
-    return packetlst
 
 #insert "data" in rawData Collection
 def postRawData(data):
@@ -55,8 +45,7 @@ def postRawData(data):
         print(type(data))
         result=createResponse(-1,"Data is not a Json List")
     else:
-        data=hashMACs(data)
-        db.cleanData.insert_many(data)
+        db.rawData.insert_many(data)
         result=createResponse(0,"Success")
     return result
 

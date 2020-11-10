@@ -43,8 +43,6 @@ def getDataFromZDM(start,end):
             try:
                 for pkt in element["payload"]["data"]:
                     pkt["timestamp"]=int(pkt["timestamp"])
-                    encodedMac=str.encode(pkt["mac2"])
-                    pkt["mac2"]=hashlib.md5(encodedMac).hexdigest()
                     packetlst.append(pkt)
             except:
                 pass
