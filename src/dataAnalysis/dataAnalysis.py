@@ -151,7 +151,7 @@ def getRelationshipGraph():
     return result            
 
 #route that returns the movements graph in json
-@app.route("/api/MovementGraph",methods=['GET'])
+@app.route("/api/movementGraph",methods=['GET'])
 def getMovementGraph():
     if(flask.request.is_json==False):
         result=createResponse(-1,"Data is not a Json File")
