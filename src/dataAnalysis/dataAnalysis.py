@@ -82,6 +82,13 @@ def getGraph(start,end,nameList,Tmin,Tmax,group):
     return result
 
 
+def filterData(data,start,end):
+    newlist=[]
+    for pack in data:
+        if(pack["timestamp"]>=start and pack["timestamp"]<=end):
+            newlist.append(pack)
+    return newlist
+
 #get data from dataManager, gives them to the people counting algorithm
 def getPeopleCount(start,end,scanner,at,wt,dt):
     if(start==None or end==None or scanner==None or at==None or dt==None or wt==None):
@@ -99,6 +106,7 @@ def getPeopleCount(start,end,scanner,at,wt,dt):
         data=result.json()
         stats=peopleCounting.statistics(at,wt,dt)
         data=peopleCounting.count(data,stats)
+        data=filterData(data,start,end)
         result=createResponse(0,data)
     return result
 

@@ -103,6 +103,7 @@ def removeOutliner():
     min,max=getMinMax()
     while(min<=max):
         removeOutlinerInterval(min,min+300)
+        #print(min,flush=True)
         min=min+300
     db.cleaning.drop()
 
@@ -117,11 +118,13 @@ def removeOutlinerInterval(start,end):
     #if a packet has an RSSI below/higher then a certain value is deleted
     for element in elements:
         (avg,stddev)=dic[element["scanner_id"]]
-        if(stddev!=0):
-            d=(element["rssi"]-avg)/stddev
-            if(d<=2 and d>=-2):
+        if(stddev!=None):
+            if(stddev!=0):
+                d=(element["rssi"]-avg)/stddev
+                if(d<=2 and d>=-2):
+                    cleaned.append(element)
+            else:
                 cleaned.append(element)
-
     if(len(cleaned)!=0):
         db.cleaned.insert_many(cleaned)
 

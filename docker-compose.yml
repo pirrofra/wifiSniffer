@@ -11,7 +11,7 @@ services:
         container_name: database
         image: mongo:4.2.2
         ports:
-            - "27017:27017"
+            - 27017
         volumes:
             - mongodb:/data/db
     
@@ -19,7 +19,7 @@ services:
         container_name: tmp_database
         image: mongo:4.2.2
         ports:
-            - 27017
+            - "27017:27017"
         volumes:
             - tmpmongodb:/data/db
 
