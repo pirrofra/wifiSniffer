@@ -137,3 +137,24 @@ def createGraph(data,names,Tmin,Tmax,group):
     else:
         graph=createRelationshipGraph(trajectoryList,Min,Max)
     return graph
+
+
+def getTrajectories(data,names,Tmin,Tmax):
+    trajectoryList,Min,Max=createTrajectories(data,names)
+    trajectoryList=removeTrajectories(trajectoryList,Tmin,Tmax)
+    workplaces=findWorkplaces(trajectoryList)
+    result={}
+    result["trajectory"]={}
+    result["workplace"]={}
+    for tr in trajectoryList:
+        result["workplace"][tr.mac]=workplaces[tr.mac]
+        result["trajectory"][tr.mac]=[]
+        time=Min
+        while(time<=Max):
+            if(tr.locations.get(time)==None):
+                result["trajectory"][tr.mac].append(("None",time))
+            else:
+                current=tr.locations[time]
+                result["trajectory"][tr.mac].append((current,time))
+            time=time+300
+    return result

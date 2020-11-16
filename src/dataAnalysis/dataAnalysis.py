@@ -82,6 +82,19 @@ def getGraph(start,end,nameList,Tmin,Tmax,group):
     return result
 
 
+def getTrajectories(start,end,nameList,Tmin,Tmax):
+    names=getNames(nameList)
+    scanners=getScanners(names)
+    payload={
+        "start":start,
+        "end":end,
+        "scanner":scanners
+    }
+    result=requests.get(dataManager+"/cleanData",json=payload)
+    data=result.json()
+    result=graph.getTrajectories(data,names,Tmin,Tmax)
+    return result
+
 def filterData(data,start,end):
     newlist=[]
     for pack in data:
@@ -222,3 +235,29 @@ def room(name):
         payload=flask.request.get_json()
         result=requests.post(dataManager+"device/"+name,json=payload)
         return result.json()
+
+#route that returns the movements graph in json
+@app.route("/api/trajectories",methods=['GET'])
+def trajectories():
+    if(flask.request.is_json==False):
+        result=createResponse(-1,"Data is not a Json File")
+    else:
+        parameters=flask.request.get_json()
+        if(type(parameters["rooms"])!= list):
+            result=createResponse(-1,"Rooms is not a List")
+        else:
+            #get parameters from json attachment
+            rooms=parameters["rooms"]
+            start=parameters["start"]
+            end=parameters["end"]
+            try:
+                Tmin=parameters["Tmin"]
+                Tmax=parameters["Tmax"]
+            except:
+                Tmin=0.01
+                Tmax=0.5
+            if(start==None or end==None or rooms==None):
+                result=createResponse(-1,"MissingParameterForSearch")
+            else:
+                result=createResponse(0,getTrajectories(start,end,rooms,Tmin,Tmax))
+    return result 
