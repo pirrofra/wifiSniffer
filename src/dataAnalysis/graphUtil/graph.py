@@ -20,12 +20,12 @@ class trajectory:
                 count[element["room"]]=count[element["room"]]+1
                 if(lastSeen.get(element["room"])==None):
                     lastSeen[element["room"]]=0
-                    lastSeen[element["room"]]=max(lastSeen[element["room"]],element["timestamp"])
+                lastSeen[element["room"]]=max(lastSeen[element["room"]],element["timestamp"])
             
             Max=0
             Location=None
             for room in count.keys():
-                if(count[room]>Max):
+                if(count[room]>Max or Max==0):
                     Location=room
                     Max=count[room]
                 elif (count[room]==Max and lastSeen[Location]<lastSeen[room]):
