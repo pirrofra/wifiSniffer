@@ -67,6 +67,7 @@ def getSingleName(name):
     return macs
 
 
+
 #get data from dataManager, gives them to the graphing algorithm
 def getGraph(start,end,nameList,Tmin,Tmax,group):
     names=getNames(nameList)
@@ -202,25 +203,25 @@ def getMovementGraph():
 def roomList():
     response=requests.get(dataManager+"device")
     data=response.json()
-    list=[]
+    List=[]
     for element in data:
-        if(element["name"] not in list):
-            list.append(element["name"])
-    return list
+        if(element["name"] not in List):
+            List.append(element["name"])
+    return List
 
 #get all scanners devices
 @app.route("/api/room",methods=['GET'])
 def getRoomList():
-    list=roomList()
-    return dumps(list)
+    List=roomList()
+    return createResponse(0,List)
 
 #route to get an html page with the relationship graph
 @app.route("/api/relationshipGraph/graph.html")
 def getGraphHTML():
     start=int(flask.request.args.get("from"))//1000
     end=int(flask.request.args.get("to"))//1000
-    list=roomList()
-    data=getGraph(start,end,list,0.01,0.5,True)
+    List=roomList()
+    data=getGraph(start,end,List,0.01,0.5,True)
     return flask.render_template("graph.html",arg=data)
 
 #route to get and register new devices scanner
@@ -229,12 +230,12 @@ def room(name):
     if flask.request.method== "GET":
         #get, return data
         result=requests.get(dataManager+"device/"+name)
-        return result.json()
+        return createResponse(0,result.json())
     else:
         #post, save data
         payload=flask.request.get_json()
         result=requests.post(dataManager+"device/"+name,json=payload)
-        return result.json()
+        return createResponse(0,result.json())
 
 #route that returns the movements graph in json
 @app.route("/api/trajectories",methods=['GET'])

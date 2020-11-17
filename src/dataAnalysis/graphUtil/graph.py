@@ -9,29 +9,27 @@ class trajectory:
 
     def addToTrajectory(self,data):
         self.slot=self.slot+1
-        if data == None:
+        if data == None or data==[]:
             self.emptySlots=self.emptySlots+1
         else:
             count={}
-            lastSeen={}
+            summed={}
             for element in data:
                 if(count.get(element["room"])==None):
                     count[element["room"]]=0
                 count[element["room"]]=count[element["room"]]+1
-                if(lastSeen.get(element["room"])==None):
-                    lastSeen[element["room"]]=0
-                lastSeen[element["room"]]=max(lastSeen[element["room"]],element["timestamp"])
+                if(summed.get(element["room"])==None):
+                    summed[element["room"]]=0
+                summed[element["room"]]=summed[element["room"]]+element["rssi"]
             
             Max=0
             Location=None
             for room in count.keys():
-                if(count[room]>Max or Max==0):
+                avg=summed[room]/count[room]
+                if(avg>=Max or Location==None):
                     Location=room
-                    Max=count[room]
-                elif (count[room]==Max and lastSeen[Location]<lastSeen[room]):
-                    Location=room
-                    Max=count[room]
-            timestamp=(lastSeen[Location]//300)*300
+                    Max=avg
+            timestamp=(data[0]["timestamp"]//300)*300
             self.locations[timestamp]=Location
             if(self.locationCount.get(Location)==None):
                 self.locationCount[Location]=0

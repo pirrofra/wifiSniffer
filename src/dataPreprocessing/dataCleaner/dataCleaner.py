@@ -184,11 +184,14 @@ def highestRSSIInterval(start,end):
     #save data in a tmp collection
     pipeline=[
         {"$match":{"timestamp":{"$gte":start,"$lt":end}}},
-        {"$sort":SON([("mac",1),("rssi",-1)])},
         {"$group":{
-            "_id":"$mac",
-            "rssi":{"$max":"$rssi"},
-            "room":{"$first":"$scanner_id"}}},
+            "_id":{"mac":"$mac","scanner_id":"$scanner_id"},
+            "rssi":{"$avg":"$rssi"}}},
+        {"$sort":SON([("_id.mac",1),("rssi",-1)])},
+        {"$group":{
+            "_id":"$_id.mac",
+            "rssi":{"$first":"$rssi"},
+            "room":{"$first":"$_id.scanner_id"}}},
         {"$project":{
             "mac":"$_id",
             "rssi":"$rssi",
